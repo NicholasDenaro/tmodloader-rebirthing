@@ -16,3 +16,21 @@ NPCs: {
 		}
 	}
 }
+
+Configs: {
+	RebirthingClientConfig.DisplayName: Rebirthing Client Config
+
+	RebirthingServerConfig: {
+		DisplayName: Rebirthing Server Config
+
+		ExpRate: {
+			Label: Exp Rate
+			Tooltip: Sets the experience rate for the server
+		}
+
+		CoinRate: {
+			Label: Coin Rate
+			Tooltip: Sets the coin rate for the server
+		}
+	}
+}

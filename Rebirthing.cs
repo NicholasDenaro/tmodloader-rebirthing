@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Steamworks;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -19,6 +15,9 @@ namespace Rebirthing
     public static bool IsClient => !IsServer;
     public static bool IsSinglePlayer => Main.netMode == NetmodeID.SinglePlayer;
     public static bool IsHost => IsServer || IsSinglePlayer;
+
+    public static float ExpRate;
+    public static float CoinRate;
 
     public static RebirthPlayer Player;
 
@@ -74,6 +73,12 @@ namespace Rebirthing
           int npc = reader.ReadInt32();
           AwardExp(npc);
           break;
+        case MessageType.MINING:
+          int x = reader.ReadInt32();
+          int y = reader.ReadInt32();
+          int exp = reader.ReadInt32();
+          this.AwardExpForMining(x, y, exp);
+          break;
       }
     }
 
@@ -111,9 +116,21 @@ namespace Rebirthing
 
     internal void AwardExpForMining(int x, int y, int exp)
     {
-      foreach (RebirthPlayer player in Players)
+      if (Rebirthing.IsServer)
       {
-        player.AwardExpForMining(x, y, exp);
+        ModPacket packet = GetPacket();
+        packet.Write((byte)MessageType.MINING);
+        packet.Write(x);
+        packet.Write(y);
+        packet.Write(exp);
+        packet.Send();
+      }
+      else
+      {
+        foreach (RebirthPlayer player in Players)
+        {
+          player.AwardExpForMining(x, y, exp);
+        }
       }
     }
   }
@@ -130,5 +147,5 @@ namespace Rebirthing
     }
   }
 
-  public enum MessageType { CONNECT = 0, NPC_KILLED }
+  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING }
 }

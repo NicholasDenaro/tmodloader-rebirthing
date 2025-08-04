@@ -20,7 +20,7 @@ namespace Rebirthing
 {
   public class RebirthPlayer : ModPlayer
   {
-    private PlayerData rebirthData;
+    public PlayerData RebirthData { get; private set; }
 
     private Dictionary<int, int> damageToNpc = new Dictionary<int, int>();
 
@@ -232,9 +232,9 @@ namespace Rebirthing
       Console.WriteLine("Enter World Loading player " + this.Player?.name);
       Rebirthing.Players.Add(this);
       Rebirthing.Player = this;
-      if (this.rebirthData == null)
+      if (this.RebirthData == null)
       {
-        this.rebirthData = new PlayerData();
+        this.RebirthData = new PlayerData();
       }
       Main.blockInput = false;
     }
@@ -256,13 +256,13 @@ namespace Rebirthing
 
     public override void SaveData(TagCompound tag)
     {
-      tag.Set("rebirthing", JsonSerializer.Serialize(this.rebirthData), true);
+      tag.Set("rebirthing", JsonSerializer.Serialize(this.RebirthData), true);
       Console.WriteLine("LOG: Saved player data");
     }
 
     public override void LoadData(TagCompound tag)
     {
-      this.rebirthData = JsonSerializer.Deserialize<PlayerData>(tag.Get<string>("rebirthing")) ?? new PlayerData();
+      this.RebirthData = JsonSerializer.Deserialize<PlayerData>(tag.Get<string>("rebirthing")) ?? new PlayerData();
       Console.WriteLine("LOG: Loaded player data");
     }
 
@@ -277,20 +277,24 @@ namespace Rebirthing
 
     public void AwardExpForMining(int x, int y, int exp)
     {
-      if (this.brokenTiles.Any(tile => tile.X == x && tile.Y == y))
+      if (Rebirthing.IsSinglePlayer || Rebirthing.IsClient)
       {
-        this.AwardExp(exp);
+        if (this.brokenTiles.Any(tile => tile.X == x && tile.Y == y))
+        {
+          this.AwardExp(exp);
+        }
       }
     }
 
     public void AwardExp(int exp)
     {
-      this.levelUps += this.rebirthData.AddExP(exp);
+      exp = (int)(exp * Rebirthing.ExpRate);
+      this.levelUps += this.RebirthData.AddExP(exp);
     }
 
     public void Rebirth()
     {
-      this.rebirthData.Rebirth();
+      this.RebirthData.Rebirth();
 
       this.rebirthTimer = 5 * 60;
       this.rebirthing = true;

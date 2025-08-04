@@ -14,6 +14,7 @@ namespace Rebirthing
     {
       Console.WriteLine("npc died");
       Rebirthing.Instance.AwardExp(npc.whoAmI);
+      npc.value *= Rebirthing.CoinRate;
     }
   }
 
@@ -66,17 +67,30 @@ namespace Rebirthing
     {
       if (firstButton)
       {
-        Rebirthing.Player.Rebirth();
+        if (Rebirthing.Player.RebirthData.Level >= 25)
+        {
+          Rebirthing.Player.Rebirth();
+          Main.npcChatText = String.Empty;
+          // Closing the chat on the same frame is causing an index out of bounds excpetion within Main
+          Main.RunOnMainThread(() =>
+          {
+            Main.CloseNPCChatOrSign();
+          });
+        }
+        else
+        {
+          Main.npcChatText = "Talk to me again when you are at least level 25";
+        }
+        
+      }
+      else
+      {
         Main.npcChatText = String.Empty;
         // Closing the chat on the same frame is causing an index out of bounds excpetion within Main
         Main.RunOnMainThread(() =>
         {
           Main.CloseNPCChatOrSign();
         });
-      }
-      else
-      {
-        Rebirthing.Write("Showing the spec menu...");
       }
     }
   }
