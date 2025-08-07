@@ -10,25 +10,18 @@ namespace Rebirthing
   {
     public override void OnCreated(Item item, ItemCreationContext context)
     {
-      Rebirthing.Write("item created " + item.Name);
-      Rebirthing.Write("context: " + context);
       if (context is RecipeItemCreationContext)
       {
-        RecipeItemCreationContext ricc = (RecipeItemCreationContext)context;
-
         int exp = (int)(item.value * 1.5 / 5 / 100);
 
         Rebirthing.Write("Item crafted " + exp + " exp");
 
-        // Rebirthing.Instance.AwardExpForCrafting(exp);
+        Rebirthing.Instance.AwardExpForCrafting(exp);
       }
     }
 
     public override void OnSpawn(Item item, IEntitySource source)
     {
-      // Rebirthing.Write("item spawned " + item.Name);
-      // Rebirthing.Write("source: " + source);
-
       if (source is EntitySource_TileBreak)
       {
         EntitySource_TileBreak tbs = (EntitySource_TileBreak)source;
@@ -45,8 +38,6 @@ namespace Rebirthing
           {
             exp = Math.Max(1, exp);
           }
-
-          // Rebirthing.Write("Exp value: " + exp);
 
           Rebirthing.Instance.AwardExpForMining(x, y, exp);
         }
@@ -66,10 +57,11 @@ namespace Rebirthing
       if (this.IsFirstUse)
       {
         RebirthPlayer rp = player.GetModPlayer<RebirthPlayer>();
-        float rate = 1 + rp.GetAttribute("Buff Duration").Level * 0.1f;
-        item.buffTime = (int)(item.buffTime * rate);
+        float rate = 1 + rp.GetAttributeValue("Buff Duration");
+        float rateX = 1 + rp.GetTAttributeValue("Buff Duration");
+        item.buffTime = (int)(item.buffTime * rate * rateX);
       }
-      
+
       this.IsFirstUse = false;
 
       return null;

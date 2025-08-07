@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Terraria;
-using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace Rebirthing
 {
@@ -22,6 +22,8 @@ namespace Rebirthing
     public static float SpecsRate;
     public static float DropRate;
     public static float DropCountRate;
+
+    public int WorldIncrement;
 
     public static RebirthPlayer Player;
 
@@ -137,6 +139,16 @@ namespace Rebirthing
         }
       }
     }
+
+    internal void AwardExpForCrafting(int exp)
+    {
+      Player.AwardExp(exp);
+    }
+
+    public void IncrementWorld()
+    {
+      WorldIncrement++;
+    }
   }
 
   public class ExpCommand : ModCommand
@@ -148,6 +160,26 @@ namespace Rebirthing
     public override void Action(CommandCaller caller, string input, string[] args)
     {
       Rebirthing.Player.AwardExp(int.Parse(args[0]));
+    }
+  }
+
+  public class RebirthingSystem : ModSystem
+  {
+    public override void SaveWorldData(TagCompound tag)
+    {
+      tag.Set("WorldIncrement", Rebirthing.Instance.WorldIncrement);
+    }
+
+    public override void LoadWorldData(TagCompound tag)
+    {
+      if (tag.ContainsKey("WorldIncrement"))
+      {
+        Rebirthing.Instance.WorldIncrement = tag.Get<int>("WorldIncrement");
+      }
+      else
+      {
+        Rebirthing.Instance.WorldIncrement = 1;
+      }
     }
   }
 

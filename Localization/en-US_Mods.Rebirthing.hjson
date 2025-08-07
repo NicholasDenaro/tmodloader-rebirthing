@@ -15,24 +15,218 @@ NPCs: {
 			Princess_LovesNPC: I like {NPCName}.
 		}
 	}
+
+	Transcender: {
+		DisplayName: Transcender
+
+		TownNPCMood: {
+			Content: I am content.
+			NoHome: I hate not having a home.
+			FarFromHome: I am too far from home.
+			LoveSpace: I love having so much space.
+			DislikeCrowded: I dislike how crowded I am.
+			HateCrowded: I hate how crowded I am.
+			LikeNPC_Princess: I like {NPCName}.
+			Princess_LovesNPC: I like {NPCName}.
+		}
+	}
+
+	TerraLord: {
+		DisplayName: Terra Lord
+
+		TownNPCMood: {
+			Content: I am content.
+			NoHome: I hate not having a home.
+			FarFromHome: I am too far from home.
+			LoveSpace: I love having so much space.
+			DislikeCrowded: I dislike how crowded I am.
+			HateCrowded: I hate how crowded I am.
+			LikeNPC_Princess: I like {NPCName}.
+			Princess_LovesNPC: I like {NPCName}.
+		}
+	}
 }
 
 Attributes: {
-	Health.Description: Base health (+10)
-	"Health Regen.Description": Base health regen (+0.5/s)
-	Defense.Description: Base defense (+2)
-	Mana.Description: Base mana (+10)
-	"Mana Regen.Description": Base mana regen (+0.5/s)
-	Speed.Description: Base speed (+10%)
-	Damage.Description: Base damage (+1)
-	"Armor Pen.Description": Armor penetration (+1)
-	"Attack Speed.Description": Base attack speed (+10%)
-	"Crit Rate.Description": Critical damage rate (+5%)
-	"Crit Damage.Description": Critical dmage (+5%)
-	"Max Minions.Description": Maximum Minion Slots (+1)
-	"Block Break Speed.Description": Block breaking speed (+10%)
-	"Buff Duration.Description": Buff Duration (+10%)
-	Reach.Description: Block Reach (+10%)
+	Health: {
+		Rebirth: {
+			Description: Base health (+10)
+			Value: "10"
+		}
+
+		Transcendence: {
+			Description: Base health (+5%)
+			Value: "0.05"
+		}
+	}
+
+	"Health Regen": {
+		Rebirth: {
+			Description: Base health regen (+0.5/s)
+			Value: "0.5"
+		}
+
+		Transcendence: {
+			Description: Base health regen (+1%)
+			Value: "0.01"
+		}
+	}
+
+	Defense: {
+		Rebirth: {
+			Description: Base defense (+2)
+			Value: "2"
+		}
+
+		Transcendence: {
+			Description: Base defense (+5%)
+			Value: "0.05"
+		}
+	}
+
+	Mana: {
+		Rebirth: {
+			Description: Base mana (+10)
+			Value: "10"
+		}
+
+		Transcendence: {
+			Description: Base mana (+5%)
+			Value: "0.05"
+		}
+	}
+
+	"Mana Regen": {
+		Rebirth: {
+			Description: Base mana regen (+0.5/s)
+			Value: "0.5"
+		}
+
+		Transcendence: {
+			Description: Base mana regen (+1%)
+			Value: "0.01"
+		}
+	}
+
+	Speed: {
+		Rebirth: {
+			Description: Base speed (+5%)
+			Value: "0.05"
+		}
+
+		Transcendence: {
+			Description: Base speed (+10%)
+			Value: "0.1"
+		}
+	}
+
+	Damage: {
+		Rebirth: {
+			Description: Base damage (+1)
+			Value: "1"
+		}
+
+		Transcendence: {
+			Description: Base damage (+1%)
+			Value: "0.01"
+		}
+	}
+
+	"Armor Pen": {
+		Rebirth: {
+			Description: Armor penetration (+1)
+			Value: "1"
+		}
+
+		Transcendence: {
+			Description: Armor penetration (+10%)
+			Value: "0.1"
+		}
+	}
+
+	"Attack Speed": {
+		Rebirth: {
+			Description: Base attack speed (+5%)
+			Value: "0.05"
+		}
+
+		Transcendence: {
+			Description: Base attack speed (+10%)
+			Value: "0.1"
+		}
+	}
+
+	"Crit Rate": {
+		Rebirth: {
+			Description: Critical damage rate (+2%)
+			Value: "0.02"
+		}
+
+		Transcendence: {
+			Description: Critical damage rate (+5%)
+			Value: "0.05"
+		}
+	}
+
+	"Crit Damage": {
+		Rebirth: {
+			Description: Critical dmage (+2%)
+			Value: "0.02"
+		}
+
+		Transcendence: {
+			Description: Critical dmage (+5%)
+			Value: "0.05"
+		}
+	}
+
+	"Max Minions": {
+		Rebirth: {
+			Description: Maximum Minion Slots (+1)
+			Value: "1"
+		}
+
+		Transcendence: {
+			Description: Maximum Minion Slots (+25%)
+			Value: "0.25"
+		}
+	}
+
+	"Block Break Speed": {
+		Rebirth: {
+			Description: Block breaking speed (+2%)
+			Value: "0.02"
+		}
+
+		Transcendence: {
+			Description: Block breaking speed (+10%)
+			Value: "0.1"
+		}
+	}
+
+	"Buff Duration": {
+		Rebirth: {
+			Description: Buff Duration (+10%)
+			Value: "0.1"
+		}
+
+		Transcendence: {
+			Description: Buff Duration (+20%)
+			Value: "0.2"
+		}
+	}
+
+	Reach: {
+		Rebirth: {
+			Description: Block Reach (+1)
+			Value: "1"
+		}
+
+		Transcendence: {
+			Description: Block Reach (+25%)
+			Value: "0.25"
+		}
+	}
 }
 
 Configs: {

@@ -22,6 +22,11 @@ namespace Rebirthing
       panel = new RebirthingSpecsPanel();
       Append(panel);
     }
+
+    public void SetType(string type)
+    {
+      this.panel.SetType(type);
+    }
   }
 
   [Autoload(Side = ModSide.Client)]
@@ -32,9 +37,9 @@ namespace Rebirthing
 
     public bool IsOpen => this.ui.CurrentState != null;
 
-    public void Show()
+    public void Show(string type)
     {
-
+      this.state.SetType(type);
       this.ui.SetState(state);
     }
 
@@ -102,6 +107,15 @@ namespace Rebirthing
 
     private UIText attributesText;
 
+    private string selectedSpec;
+
+    private string SpecType = "Rebirth";
+
+    public void SetType(string type)
+    {
+      this.SpecType = type;
+    }
+
     public override void OnInitialize()
     {
       this.Top.Percent = 0.20f;
@@ -114,9 +128,34 @@ namespace Rebirthing
       totalLevelText.Left.Percent = 0.01f;
       this.Append(totalLevelText);
 
-      attributesText = new UIText("Rebirth energy: 0");
+      attributesText = new UIText($"{SpecType} energy: 0");
       attributesText.Left.Percent = 0.42f;
       this.Append(attributesText);
+
+      UIButton<string> respec = new UIButton<string>("Respec")
+      {
+        MaxWidth = { Percent = 0.95f },
+        HAlign = 1.0f,
+        ScalePanel = true,
+        AltPanelColor = UICommon.MainPanelBackground,
+        AltHoverPanelColor = UICommon.MainPanelBackground * (1 / 0.8f)
+      };
+      respec.OnLeftClick += (_, _) =>
+      {
+        SoundEngine.PlaySound(SoundID.MenuTick);
+        if (this.SpecType == "Rebirth")
+        {
+          Rebirthing.Player.Respec();
+        }
+        else if (this.SpecType == "Transcendence")
+        {
+          Rebirthing.Player.RespecTranscendance();
+        }
+        this.SetDescription(this.selectedSpec);
+
+        this.UpdateAmounts();
+      };
+      this.Append(respec);
 
       this.treePanel = new UIPanel();
       this.treePanel.Left.Percent = 0.01f;
@@ -137,7 +176,6 @@ namespace Rebirthing
       UIScrollbar scrollbar = new UIScrollbar();
       scrollbar.Height.Percent = 1;
       scrollbar.HAlign = 1f;
-      // scrollbar.Left.Set(-scrollbar.Width.Pixels, 1f);
       list.SetScrollbar(scrollbar);
       this.treePanel.Append(scrollbar);
 
@@ -159,10 +197,23 @@ namespace Rebirthing
 
     public override void OnActivate()
     {
+      this.UpdateAmounts();
+    }
+
+    private void UpdateAmounts()
+    {
       if (Rebirthing.Player != null)
       {
-        this.totalLevelText.SetText("Total Level: " + Rebirthing.Player.RebirthData.TotalLevel);
-        this.attributesText.SetText("Rebirth energy: " + Rebirthing.Player.RebirthData.AttributePoints);
+        if (this.SpecType == "Rebirth")
+        {
+          this.totalLevelText.SetText("Total Level: " + Rebirthing.Player.RebirthData.TotalLevel);
+          this.attributesText.SetText("Rebirth energy: " + Rebirthing.Player.RebirthData.RebirthPoints);
+        }
+        else if (this.SpecType == "Transcendence")
+        {
+          this.totalLevelText.SetText("Transendence Level: " + Rebirthing.Player.RebirthData.TranscendenceLevel);
+          this.attributesText.SetText("Transcendence energy: " + Rebirthing.Player.RebirthData.TranscendencePoints);
+        }
       }
     }
 
@@ -197,6 +248,24 @@ namespace Rebirthing
 
     private void SetDescription(string text)
     {
+      if (this.SpecType == "Rebirth")
+      {
+        this.SetRebirthDescription(text);
+      }
+      else if (this.SpecType == "Transcendence")
+      {
+        this.SetTranscendenceDescription(text);
+      }
+    }
+
+    private void SetRebirthDescription(string text)
+    {
+      if (!RebirthAttribute.List.Contains(text))
+      {
+        return;
+      }
+
+      this.selectedSpec = text;
       RebirthAttribute attr = Rebirthing.Player.GetAttribute(text);
 
       this.descriptionList.Clear();
@@ -205,8 +274,12 @@ namespace Rebirthing
       this.descriptionList.Add(title);
       UIText level = new UIText("Level " + attr.Level);
       this.descriptionList.Add(level);
-      UIText description = new UIText(Language.GetTextValue($"Mods.Rebirthing.Attributes.{text}.Description"));
+      UIText description = new UIText(Language.GetTextValue($"Mods.Rebirthing.Attributes.{text}.{SpecType}.Description"));
       this.descriptionList.Add(description);
+
+      UIText current = new UIText("Current value: " + Rebirthing.Player.GetAttributeValue(text));
+      this.descriptionList.Add(current);
+
       int cost = (int)Math.Pow(1.15, attr.Level);
       this.descriptionList.Add(new UIText("Cost: " + cost));
       UIButton<string> upgrade = new UIButton<string>("Upgrade")
@@ -216,26 +289,75 @@ namespace Rebirthing
         ScalePanel = true,
         AltPanelColor = UICommon.MainPanelBackground,
         AltHoverPanelColor = UICommon.MainPanelBackground * (1 / 0.8f),
-        UseAltColors = () => Rebirthing.Player.RebirthData.AttributePoints >= cost,
+        UseAltColors = () => Rebirthing.Player.RebirthData.RebirthPoints >= cost,
       }.WithFadedMouseOver(); ;
       upgrade.OnLeftClick += (_, _) =>
       {
-        if (Rebirthing.Player.RebirthData.AttributePoints >= cost)
+        if (Rebirthing.Player.RebirthData.RebirthPoints >= cost)
         {
-          Rebirthing.Player.RebirthData.AttributePoints -= cost;
-          if (!Rebirthing.Player.RebirthData.Attributes.ContainsKey(text))
+          Rebirthing.Player.RebirthData.RebirthPoints -= cost;
+          if (!Rebirthing.Player.RebirthData.RebirthAttributes.ContainsKey(text))
           {
-            Rebirthing.Player.RebirthData.Attributes[text] = attr;
+            Rebirthing.Player.RebirthData.RebirthAttributes[text] = attr;
           }
 
           attr.Level++;
           SetDescription(text);
 
-          if (Rebirthing.Player != null)
+          this.UpdateAmounts();
+        }
+      };
+
+      this.descriptionList.Add(upgrade);
+    }
+
+    private void SetTranscendenceDescription(string text)
+    {
+      if (!RebirthAttribute.List.Contains(text))
+      {
+        return;
+      }
+
+      this.selectedSpec = text;
+      RebirthAttribute attr = Rebirthing.Player.GetTAttribute(text);
+
+      this.descriptionList.Clear();
+      this.descriptionList.Add(new UIText(""));
+      UIText title = new UIText(text);
+      this.descriptionList.Add(title);
+      UIText level = new UIText("Level " + attr.Level);
+      this.descriptionList.Add(level);
+      UIText description = new UIText(Language.GetTextValue($"Mods.Rebirthing.Attributes.{text}.{SpecType}.Description"));
+      this.descriptionList.Add(description);
+
+      UIText current = new UIText("Current value: " + Rebirthing.Player.GetTAttributeValue(text));
+      this.descriptionList.Add(current);
+
+      int cost = (int)Math.Pow(1.15, attr.Level);
+      this.descriptionList.Add(new UIText("Cost: " + cost));
+      UIButton<string> upgrade = new UIButton<string>("Upgrade")
+      {
+        MaxWidth = { Percent = 0.95f },
+        HAlign = 0.0f,
+        ScalePanel = true,
+        AltPanelColor = UICommon.MainPanelBackground,
+        AltHoverPanelColor = UICommon.MainPanelBackground * (1 / 0.8f),
+        UseAltColors = () => Rebirthing.Player.RebirthData.RebirthPoints >= cost,
+      }.WithFadedMouseOver(); ;
+      upgrade.OnLeftClick += (_, _) =>
+      {
+        if (Rebirthing.Player.RebirthData.TranscendencePoints >= cost)
+        {
+          Rebirthing.Player.RebirthData.TranscendencePoints -= cost;
+          if (!Rebirthing.Player.RebirthData.TranscendenceAttributes.ContainsKey(text))
           {
-            this.totalLevelText.SetText("Total Level: " + Rebirthing.Player.RebirthData.TotalLevel);
-            this.attributesText.SetText("Rebirth energy: " + Rebirthing.Player.RebirthData.AttributePoints);
+            Rebirthing.Player.RebirthData.TranscendenceAttributes[text] = attr;
           }
+
+          attr.Level++;
+          SetDescription(text);
+
+          this.UpdateAmounts();
         }
       };
 

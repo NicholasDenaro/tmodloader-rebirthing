@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,9 +9,8 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameInput;
-using Terraria.Graphics.Effects;
-using Terraria.Graphics.Shaders;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
@@ -33,6 +30,12 @@ namespace Rebirthing
     public bool IsRebirthing => this.rebirthing;
     private int rebirthTimer = -1;
     public int RebirthTimer => this.rebirthTimer;
+
+
+    private bool transcending = false;
+    public bool IsTranscending => this.transcending;
+    private int transcendTimer = -1;
+    public int TranscendTimer => this.transcendTimer;
 
     private int levelUps = 0;
     private int levelUpsTimer = 0;
@@ -57,11 +60,17 @@ namespace Rebirthing
     {
       int damageSpec = this.GetAttribute("Damage").Level;
 
-      double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo(Player.HeldItem.damage + damageSpec);
+      float damageSpecT = 1 + this.GetTAttribute("Damage").Level * 0.01f;
+
+      double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo((Player.HeldItem.damage + damageSpec) * damageSpecT);
 
       modifiers.SourceDamage.Base += damageSpec;
 
-      modifiers.CritDamage += this.GetAttribute("Crit Damage").Level / 20.0f;
+      float critDamage = this.GetAttribute("Crit Damage").Level * 0.02f;
+      float critDamageT = this.GetTAttribute("Crit Damage").Level * 0.05f;
+
+      // Takes into account the rate
+      modifiers.CritDamage += critDamage + critDamageT;
 
       if (!damageToNpc.ContainsKey(target.whoAmI))
       {
@@ -73,7 +82,7 @@ namespace Rebirthing
 
     public override void ModifyCaughtFish(Item fish)
     {
-      this.AwardExp(fish.value / 10);
+      this.AwardExp(fish.value / 25);
     }
 
     public override void PreUpdate()
@@ -85,16 +94,16 @@ namespace Rebirthing
       }
 
       foreach (int whoAmI in killedNpcs)
+      {
+        if (this.damageToNpc.ContainsKey(whoAmI))
         {
-          if (this.damageToNpc.ContainsKey(whoAmI))
-          {
-            int damage = this.damageToNpc[whoAmI];
+          int damage = this.damageToNpc[whoAmI];
 
-            this.AwardExp(damage);
+          this.AwardExp(damage);
 
-            this.damageToNpc.Remove(whoAmI);
-          }
+          this.damageToNpc.Remove(whoAmI);
         }
+      }
 
       killedNpcs.Clear();
 
@@ -106,6 +115,31 @@ namespace Rebirthing
         }
       }
 
+      RebirthTick();
+      TranscendTick();
+
+      if (this.levelUps > 0)
+      {
+        if (this.levelUpsTimer == 0)
+        {
+          this.levelUpsTimer = 20;
+          levelUpsTimers.Add(30);
+
+          AdvancedPopupRequest info = new AdvancedPopupRequest();
+          info.Text = "Level Up";
+          info.Color = Color.White;
+          info.DurationInFrames = 60;
+          int text = PopupText.NewText(info, this.Player.Top);
+
+          this.levelUps--;
+        }
+
+        this.levelUpsTimer--;
+      }
+    }
+
+    private void RebirthTick()
+    {
       if (this.rebirthing)
       {
         this.Player.moveSpeed = 0;
@@ -120,12 +154,6 @@ namespace Rebirthing
       }
       else if (this.rebirthTimer == 4 * 60)
       {
-        // TODO: Make player invuln, prevent moving, and then play effect
-        // Glow_109 // fire ring? // GlowMaskID.CultistTabletBack;
-        // Extra_34 // inner hex?
-        // Projectile_673 // purple hexy thing?
-        // Projectile_490 // Large outer ring
-
         int id = Projectile.NewProjectile(this.Player.GetSource_FromThis(), this.Player.Center, Vector2.Zero, ProjectileID.CultistRitual, 0, 0, this.Player.whoAmI);
 
         Projectile proj = Main.projectile[id];
@@ -206,37 +234,100 @@ namespace Rebirthing
       {
         this.rebirthTimer--;
       }
+    }
 
-      if (this.levelUps > 0)
+    private void TranscendTick()
+    {
+      if (this.transcending)
       {
-        if (this.levelUpsTimer == 0)
+        this.Player.moveSpeed = 0;
+        this.Player.gravity = 0;
+        this.Player.velocity = Vector2.Zero;
+      }
+
+      if (this.transcendTimer > 4 * 60)
+      {
+        this.Player.velocity.Y = -0.6f;
+      }
+      else if (this.transcendTimer == 4 * 60)
+      {
+        int id = Projectile.NewProjectile(this.Player.GetSource_FromThis(), this.Player.Center, Vector2.Zero, ProjectileID.CultistRitual, 0, 0, this.Player.whoAmI);
+
+        Projectile proj = Main.projectile[id];
+
+        proj.scale = 0;
+        proj.timeLeft = 5 * 60;
+        proj.aiStyle = 0;
+        proj.friendly = true;
+        proj.light = 0f;
+        proj.tileCollide = false;
+
+        this.Ring = proj;
+      }
+      else if (this.transcendTimer >= 3 * 60)
+      {
+        this.Ring.scale += 1.0f / 60;
+        this.Ring.rotation += (float)Math.PI / 15;
+        this.Ring.light += 1.0f / 60;
+      }
+      else if (this.transcendTimer > 2 * 60)
+      {
+      }
+      else if (this.transcendTimer == 2 * 60)
+      {
+      }
+      else if (this.transcendTimer >= 1 * 60)
+      {
+
+      }
+      else if (this.transcendTimer > 45)
+      {
+        this.Ring.scale -= 1.0f / 15;
+        this.Ring.rotation += (float)Math.PI / 15;
+        this.Ring.light -= 1.0f / 15;
+      }
+      else if (this.transcendTimer == 45)
+      {
+        if (this.Ring?.active == true)
         {
-          this.levelUpsTimer = 20;
-
-          // Projectile_536 // ProjectileID.MedusaHeadRay // didn't work
-          // ProjectileID.StarWrath // maybe
-          // ProjectileID.FairyQueenSunDance // maybe
-          // ProjectileID.FairyQueenMagicItemShot // didn't work
-          // ProjectileID.VoidLens // didn't work
-
-          levelUpsTimers.Add(30);
-
-          // this.Player.chatOverhead = new Player.OverheadMessage();
-          // this.Player.chatOverhead.chatText = "Level Up";
-          // this.Player.chatOverhead.timeLeft = 30;
-          // this.Player.chatOverhead.color = Color.White;
-
-          AdvancedPopupRequest info = new AdvancedPopupRequest();
-          info.Text = "Level Up";
-          // info.Velocity = new Vector2(0, -1);
-          info.Color = Color.White;
-          info.DurationInFrames = 60;
-          int text = PopupText.NewText(info, this.Player.Top);
-
-          this.levelUps--;
+          this.Ring.Kill();
         }
 
-        this.levelUpsTimer--;
+        int id = Projectile.NewProjectile(this.Player.GetSource_FromThis(), this.Player.Center, Vector2.Zero, ProjectileID.RainbowRodBullet, 0, 0, this.Player.whoAmI);
+
+        Projectile proj = Main.projectile[id];
+
+        proj.scale = 0.1f;
+        proj.timeLeft = 5 * 60;
+        proj.aiStyle = 0;
+        proj.friendly = true;
+        proj.light = 0f;
+        proj.tileCollide = false;
+        proj.maxPenetrate = 10000;
+        proj.numHits = 10000;
+        proj.penetrate = 10000;
+
+        this.Flash = proj;
+      }
+      else if (this.transcendTimer > 0)
+      {
+        this.Flash.scale *= 1.3f;
+      }
+      else if (this.transcendTimer == 0)
+      {
+        if (this.Flash?.active == true)
+        {
+          this.Flash.Kill();
+        }
+        this.Flash = null;
+
+        this.Ring = null;
+        this.EndTranscend();
+      }
+
+      if (this.transcendTimer >= 0)
+      {
+        this.transcendTimer--;
       }
     }
 
@@ -254,26 +345,29 @@ namespace Rebirthing
 
     public override void PostUpdateMiscEffects()
     {
-      this.Player.moveSpeed += this.GetAttribute("Speed").Level * 0.1f;
+      this.Player.moveSpeed = this.Player.moveSpeed * (1 + this.GetAttributeValue("Speed")) * (1 + this.GetTAttributeValue("Speed"));
 
-      this.Player.GetAttackSpeed(DamageClass.Default) = this.GetAttribute("Attack Speed").Level * 0.1f;
+      this.Player.GetAttackSpeed(DamageClass.Default) = this.Player.GetAttackSpeed(DamageClass.Default) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
 
-      this.Player.statDefense += this.GetAttribute("Defense").Level * 2;
+      this.Player.statDefense = (this.Player.statDefense + (int)this.GetAttributeValue("Defense")) * (1 + this.GetTAttributeValue("Defense"));
 
-      this.Player.lifeRegen += this.GetAttribute("Health Regen").Level;
+      this.Player.lifeRegen = (int)((this.Player.lifeRegen + this.GetAttributeValue("Health Regen")) * (1 + this.GetTAttributeValue("Health Regen")));
 
-      this.Player.manaRegen += this.GetAttribute("Mana Regen").Level;
+      this.Player.manaRegen = (int)((this.Player.manaRegen + this.GetAttributeValue("Mana Regen")) * (1 + this.GetTAttributeValue("Mana Regen")));
 
-      this.Player.GetArmorPenetration(DamageClass.Default) += this.GetAttribute("Armor Pen").Level;
+      this.Player.GetArmorPenetration(DamageClass.Default) = (this.Player.GetArmorPenetration(DamageClass.Default) + this.GetAttributeValue("Armor Pen")) * (1 + this.GetTAttributeValue("Armor Pen"));
 
-      this.Player.GetCritChance(DamageClass.Default) += this.GetAttribute("Crit Rate").Level * 5;
+      this.Player.GetCritChance(DamageClass.Default) = (this.Player.GetCritChance(DamageClass.Default) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      this.Player.GetCritChance(DamageClass.Melee) = (this.Player.GetCritChance(DamageClass.Melee) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      this.Player.GetCritChance(DamageClass.Magic) = (this.Player.GetCritChance(DamageClass.Magic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      this.Player.GetCritChance(DamageClass.Ranged) = (this.Player.GetCritChance(DamageClass.Ranged) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
 
-      this.Player.maxMinions += this.GetAttribute("Max Minions").Level;
+      this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") + (1 + this.GetTAttributeValue("Max Minions")));
 
-      this.Player.pickSpeed -= this.GetAttribute("Block Break Speed").Level * 0.1f;
-      this.Player.tileSpeed -= this.GetAttribute("Block Break Speed").Level * 0.1f;
+      this.Player.pickSpeed = (this.Player.pickSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
+      this.Player.tileSpeed = (this.Player.tileSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
 
-      this.Player.blockRange = (int)(this.Player.blockRange * (1 + this.GetAttribute("Reach").Level * 0.1f));
+      this.Player.blockRange = (int)((this.Player.blockRange + this.GetAttributeValue("Reach")) * (1 + this.GetTAttributeValue("Reach")));
     }
 
     public override void ModifyMaxStats(out StatModifier health, out StatModifier mana)
@@ -282,8 +376,8 @@ namespace Rebirthing
       mana = StatModifier.Default;
       if (this.RebirthData != null)
       {
-        health.Base = this.GetAttribute("Health").Level * 10;
-        mana.Base = this.GetAttribute("Health").Level * 10;
+        health.Base = this.GetAttributeValue("Health") * (1 + this.GetTAttributeValue("Health"));
+        mana.Base = this.GetAttributeValue("Mana") * (1 + this.GetTAttributeValue("Mana"));
       }
     }
 
@@ -349,17 +443,42 @@ namespace Rebirthing
       Main.blockInput = true;
     }
 
+    public void Transcend()
+    {
+      this.RebirthData.Transend();
+
+      this.rebirthTimer = 5 * 60;
+      this.rebirthing = true;
+      Main.blockInput = true;
+    }
+
     public void EndRebirth()
     {
       this.rebirthing = false;
       Main.blockInput = false;
     }
 
+    public void EndTranscend()
+    {
+      this.transcending = false;
+      Main.blockInput = false;
+    }
+
+    public void Respec()
+    {
+      this.RebirthData.Respec();
+    }
+
+    public void RespecTranscendance()
+    {
+      this.RebirthData.RespecTranscendance();
+    }
+
     public RebirthAttribute GetAttribute(string name)
     {
-      if (this.RebirthData.Attributes.ContainsKey(name))
+      if (this.RebirthData.RebirthAttributes.ContainsKey(name))
       {
-        return this.RebirthData.Attributes[name];
+        return this.RebirthData.RebirthAttributes[name];
       }
       else
       {
@@ -370,6 +489,38 @@ namespace Rebirthing
         };
       }
     }
+
+    public RebirthAttribute GetTAttribute(string name)
+    {
+      if (this.RebirthData.TranscendenceAttributes.ContainsKey(name))
+      {
+        return this.RebirthData.TranscendenceAttributes[name];
+      }
+      else
+      {
+        return new RebirthAttribute()
+        {
+          Id = name,
+          Level = 0
+        };
+      }
+    }
+
+    public float GetAttributeValue(string name)
+    {
+      int level = this.GetAttribute(name).Level;
+      float perLevel = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Value"));
+
+      return level * perLevel;
+    }
+
+    public float GetTAttributeValue(string name)
+    {
+      int level = this.GetTAttribute(name).Level;
+      float perLevel = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Value"));
+
+      return level * perLevel;
+    }
   }
 
   public class RebirthPlayerDrawRebirthAuraLayer : PlayerDrawLayer
@@ -377,7 +528,7 @@ namespace Rebirthing
     private int index = 0;
     public override bool GetDefaultVisibility(PlayerDrawSet drawInfo)
     {
-      return drawInfo.drawPlayer.GetModPlayer<RebirthPlayer>().RebirthTimer >= 0;
+      return drawInfo.drawPlayer.GetModPlayer<RebirthPlayer>().RebirthTimer >= 0 || drawInfo.drawPlayer.GetModPlayer<RebirthPlayer>().TranscendTimer >= 0;
     }
 
     public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.Head);
