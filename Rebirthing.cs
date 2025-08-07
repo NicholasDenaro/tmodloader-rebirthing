@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Terraria;
+using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -18,6 +19,9 @@ namespace Rebirthing
 
     public static float ExpRate;
     public static float CoinRate;
+    public static float SpecsRate;
+    public static float DropRate;
+    public static float DropCountRate;
 
     public static RebirthPlayer Player;
 

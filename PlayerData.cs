@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ModLoader.Config;
 
 namespace Rebirthing
 {
@@ -8,7 +9,7 @@ namespace Rebirthing
   {
     public int Rebirths { get; set; } = 0;
 
-    public Dictionary<int, Attribute> Attributes { get; set; } = new Dictionary<int, Attribute>();
+    public Dictionary<string, RebirthAttribute> Attributes { get; set; } = new Dictionary<string, RebirthAttribute>();
 
     public int TotalLevel { get; set; } = 1;
 
@@ -26,13 +27,7 @@ namespace Rebirthing
     public void Levelup()
     {
       this.Level++;
-      Main.NewText("Level Up! Level: " + this.Level);
-
-      // TODO: Play level up effect?
-      // Projectile_536
-
-      // Maybe Extra_91 flipped vertically
-      // Maybe Extra_60
+      this.TotalLevel++;
     }
 
     public int AddExP(int exp)
@@ -44,7 +39,7 @@ namespace Rebirthing
 
       int levels = 0;
 
-      Main.NewText("Gained " + exp + " exp");
+      // Main.NewText("Gained " + exp + " exp");
       this.Exp += exp;
       int neededExp;
       while (this.Exp >= (neededExp = ExpPerLevel(this.Level)))
@@ -53,7 +48,7 @@ namespace Rebirthing
         this.Levelup();
         levels++;
       }
-      Main.NewText("+" + exp + " exp " + this.Exp + "/" + neededExp + " (" + (((int)(this.Exp * 1000.0 / neededExp)) / 10) + "%)");
+      // Main.NewText("+" + exp + " exp " + this.Exp + "/" + neededExp + " (" + (((int)(this.Exp * 1000.0 / neededExp)) / 10) + "%)");
 
       return levels;
     }
@@ -61,7 +56,7 @@ namespace Rebirthing
     public void Rebirth()
     {
       this.Rebirths++;
-      int points = (int)(Math.Log(Math.Max((this.Level - 20) / 5, 1)) / Math.Log(20) * 100);
+      int points = (int)(Math.Log(Math.Max((this.Level - 20) / 5, 1)) / Math.Log(20) * 100 * Rebirthing.SpecsRate);
       this.AttributePoints += points;
       Rebirthing.Write("Gained " + points + " rebirth energy");
       this.Level = 1;

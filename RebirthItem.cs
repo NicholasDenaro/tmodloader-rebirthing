@@ -53,4 +53,26 @@ namespace Rebirthing
       }
     }
   }
+
+  public class RebirthItemPotions : GlobalItem
+  {
+
+    public override bool InstancePerEntity => true;
+
+    private bool IsFirstUse = true;
+
+    public override bool? UseItem(Item item, Player player)
+    {
+      if (this.IsFirstUse)
+      {
+        RebirthPlayer rp = player.GetModPlayer<RebirthPlayer>();
+        float rate = 1 + rp.GetAttribute("Buff Duration").Level * 0.1f;
+        item.buffTime = (int)(item.buffTime * rate);
+      }
+      
+      this.IsFirstUse = false;
+
+      return null;
+    }
+  }
 }

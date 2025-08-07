@@ -1,9 +1,8 @@
 using System;
-using System.Threading.Tasks;
 using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 
 namespace Rebirthing
 {
@@ -12,9 +11,23 @@ namespace Rebirthing
 
     public override void OnKill(NPC npc)
     {
-      Console.WriteLine("npc died");
       Rebirthing.Instance.AwardExp(npc.whoAmI);
       npc.value *= Rebirthing.CoinRate;
+    }
+
+    public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
+    {
+      // Doesn't seem to work
+      // foreach (IItemDropRule dropRule in npcLoot.Get())
+      // {
+      //   Rebirthing.Write("drop rule" + dropRule);
+      //   if (dropRule is DropBasedOnExpertMode drop && drop.ruleForNormalMode is CommonDrop normalDropRule)
+      //   {
+      //     normalDropRule.chanceNumerator = (int)(normalDropRule.chanceNumerator * Rebirthing.DropRate);
+      //     normalDropRule.amountDroppedMinimum = Math.Max(Math.Min(normalDropRule.amountDroppedMinimum, 1), (int)(normalDropRule.amountDroppedMinimum * Rebirthing.DropCountRate));
+      //     normalDropRule.amountDroppedMaximum = Math.Max(Math.Min(normalDropRule.amountDroppedMaximum, 1), (int)(normalDropRule.amountDroppedMaximum * Rebirthing.DropCountRate));
+      //   }
+      // }
     }
   }
 
@@ -91,6 +104,8 @@ namespace Rebirthing
         {
           Main.CloseNPCChatOrSign();
         });
+        Main.playerInventory = true;
+        ModContent.GetInstance<RebirthingSpecsSystem>().Show();
       }
     }
   }

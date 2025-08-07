@@ -10,6 +10,7 @@ using ReLogic.Content;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.GameInput;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
@@ -54,7 +55,14 @@ namespace Rebirthing
 
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
     {
-      double damage = this.Player.GetDamage(modifiers.DamageType).ApplyTo(Player.HeldItem.damage);
+      int damageSpec = this.GetAttribute("Damage").Level;
+
+      double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo(Player.HeldItem.damage + damageSpec);
+
+      modifiers.SourceDamage.Base += damageSpec;
+
+      modifiers.CritDamage += this.GetAttribute("Crit Damage").Level / 20.0f;
+
       if (!damageToNpc.ContainsKey(target.whoAmI))
       {
         damageToNpc.Add(target.whoAmI, 0);
@@ -70,17 +78,23 @@ namespace Rebirthing
 
     public override void PreUpdate()
     {
-      foreach (int whoAmI in killedNpcs)
+
+      if (PlayerInput.Triggers.JustPressed.Inventory && ModContent.GetInstance<RebirthingSpecsSystem>().IsOpen)
       {
-        if (this.damageToNpc.ContainsKey(whoAmI))
-        {
-          int damage = this.damageToNpc[whoAmI];
-
-          this.AwardExp(damage);
-
-          this.damageToNpc.Remove(whoAmI);
-        }
+        ModContent.GetInstance<RebirthingSpecsSystem>().Hide();
       }
+
+      foreach (int whoAmI in killedNpcs)
+        {
+          if (this.damageToNpc.ContainsKey(whoAmI))
+          {
+            int damage = this.damageToNpc[whoAmI];
+
+            this.AwardExp(damage);
+
+            this.damageToNpc.Remove(whoAmI);
+          }
+        }
 
       killedNpcs.Clear();
 
@@ -124,7 +138,6 @@ namespace Rebirthing
         proj.tileCollide = false;
 
         this.Ring = proj;
-        Rebirthing.Write("Ring: " + this.Ring);
       }
       else if (this.rebirthTimer >= 3 * 60)
       {
@@ -239,6 +252,41 @@ namespace Rebirthing
       Main.blockInput = false;
     }
 
+    public override void PostUpdateMiscEffects()
+    {
+      this.Player.moveSpeed += this.GetAttribute("Speed").Level * 0.1f;
+
+      this.Player.GetAttackSpeed(DamageClass.Default) = this.GetAttribute("Attack Speed").Level * 0.1f;
+
+      this.Player.statDefense += this.GetAttribute("Defense").Level * 2;
+
+      this.Player.lifeRegen += this.GetAttribute("Health Regen").Level;
+
+      this.Player.manaRegen += this.GetAttribute("Mana Regen").Level;
+
+      this.Player.GetArmorPenetration(DamageClass.Default) += this.GetAttribute("Armor Pen").Level;
+
+      this.Player.GetCritChance(DamageClass.Default) += this.GetAttribute("Crit Rate").Level * 5;
+
+      this.Player.maxMinions += this.GetAttribute("Max Minions").Level;
+
+      this.Player.pickSpeed -= this.GetAttribute("Block Break Speed").Level * 0.1f;
+      this.Player.tileSpeed -= this.GetAttribute("Block Break Speed").Level * 0.1f;
+
+      this.Player.blockRange = (int)(this.Player.blockRange * (1 + this.GetAttribute("Reach").Level * 0.1f));
+    }
+
+    public override void ModifyMaxStats(out StatModifier health, out StatModifier mana)
+    {
+      health = StatModifier.Default;
+      mana = StatModifier.Default;
+      if (this.RebirthData != null)
+      {
+        health.Base = this.GetAttribute("Health").Level * 10;
+        mana.Base = this.GetAttribute("Health").Level * 10;
+      }
+    }
+
     public override void Load()
     {
       if (Rebirthing.IsServer)
@@ -306,6 +354,22 @@ namespace Rebirthing
       this.rebirthing = false;
       Main.blockInput = false;
     }
+
+    public RebirthAttribute GetAttribute(string name)
+    {
+      if (this.RebirthData.Attributes.ContainsKey(name))
+      {
+        return this.RebirthData.Attributes[name];
+      }
+      else
+      {
+        return new RebirthAttribute()
+        {
+          Id = name,
+          Level = 0
+        };
+      }
+    }
   }
 
   public class RebirthPlayerDrawRebirthAuraLayer : PlayerDrawLayer
@@ -337,7 +401,6 @@ namespace Rebirthing
     }
   }
 
-
   public class RebirthPlayerDrawLevelupLayer : PlayerDrawLayer
   {
     private int index = 0;
@@ -355,7 +418,6 @@ namespace Rebirthing
         return;
       }
 
-      // FairyQueenMagicItemShot
       Asset<Texture2D> texture = TextureAssets.Projectile[ProjectileID.VoidLens];
 
       if (!texture.IsLoaded)

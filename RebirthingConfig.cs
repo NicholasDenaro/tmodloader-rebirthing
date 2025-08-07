@@ -18,16 +18,31 @@ namespace Rebirthing
     [DefaultValue("1.0")]
     public string CoinRate;
 
+    [DefaultValue("1.0")]
+    public string SpecsRate;
+
+    [DefaultValue("1.0")]
+    public string DropRate;
+
+    [DefaultValue("1.0")]
+    public string DropCountRate; 
+
     public override void OnLoaded()
     {
       Rebirthing.ExpRate = float.Parse(this.ExpRate);
       Rebirthing.CoinRate = float.Parse(this.CoinRate);
+      Rebirthing.SpecsRate = float.Parse(this.SpecsRate);
+      Rebirthing.DropRate = float.Parse(this.DropRate);
+      Rebirthing.DropCountRate = float.Parse(this.DropCountRate);
     }
 
     public override void OnChanged()
     {
       Rebirthing.ExpRate = float.Parse(this.ExpRate);
       Rebirthing.CoinRate = float.Parse(this.CoinRate);
+      Rebirthing.SpecsRate = float.Parse(this.SpecsRate);
+      Rebirthing.DropRate = float.Parse(this.DropRate);
+      Rebirthing.DropCountRate = float.Parse(this.DropCountRate);
     }
   }
 }

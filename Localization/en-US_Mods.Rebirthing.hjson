@@ -17,6 +17,24 @@ NPCs: {
 	}
 }
 
+Attributes: {
+	Health.Description: Base health (+10)
+	"Health Regen.Description": Base health regen (+0.5/s)
+	Defense.Description: Base defense (+2)
+	Mana.Description: Base mana (+10)
+	"Mana Regen.Description": Base mana regen (+0.5/s)
+	Speed.Description: Base speed (+10%)
+	Damage.Description: Base damage (+1)
+	"Armor Pen.Description": Armor penetration (+1)
+	"Attack Speed.Description": Base attack speed (+10%)
+	"Crit Rate.Description": Critical damage rate (+5%)
+	"Crit Damage.Description": Critical dmage (+5%)
+	"Max Minions.Description": Maximum Minion Slots (+1)
+	"Block Break Speed.Description": Block breaking speed (+10%)
+	"Buff Duration.Description": Buff Duration (+10%)
+	Reach.Description: Block Reach (+10%)
+}
+
 Configs: {
 	RebirthingClientConfig.DisplayName: Rebirthing Client Config
 
@@ -31,6 +49,21 @@ Configs: {
 		CoinRate: {
 			Label: Coin Rate
 			Tooltip: Sets the coin rate for the server
+		}
+
+		SpecsRate: {
+			Label: Specs Rate
+			Tooltip: ""
+		}
+
+		DropRate: {
+			Label: Drop Rate (Unused)
+			Tooltip: ""
+		}
+
+		DropCountRate: {
+			Label: Drop Count Rate (Unused)
+			Tooltip: ""
 		}
 	}
 }
