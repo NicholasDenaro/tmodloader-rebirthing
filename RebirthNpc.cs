@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using Terraria;
-using Terraria.DataStructures;
-using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -66,6 +64,11 @@ namespace Rebirthing
       NPC.knockBackResist = 0.5f; // All vanilla Town NPCs have 50% knockback resistance. Think of this more as knockback susceptibility. 1f = 100% knockback taken, 0f = 0% knockback taken.
 
       AnimationType = NPCID.Guide; // Sets the animation style to follow the animation of your chosen vanilla Town NPC.
+    }
+
+    public override string GetChat()
+    {
+      return "Rebirth to enhance your strength.";
     }
 
     public override bool CanTownNPCSpawn(int numTownNPCs)
@@ -147,6 +150,11 @@ namespace Rebirthing
       AnimationType = NPCID.Guide; // Sets the animation style to follow the animation of your chosen vanilla Town NPC.
     }
 
+    public override string GetChat()
+    {
+      return "You can consume your rebirth energy to transcend further.";
+    }
+
     public override bool CanTownNPCSpawn(int numTownNPCs)
     {
       return Rebirthing.Players.Any(player => player.RebirthData.TotalLevel >= 50 || player.RebirthData.TranscendenceLevel > 0);
@@ -223,6 +231,18 @@ namespace Rebirthing
       NPC.knockBackResist = 0.5f; // All vanilla Town NPCs have 50% knockback resistance. Think of this more as knockback susceptibility. 1f = 100% knockback taken, 0f = 0% knockback taken.
 
       AnimationType = NPCID.Guide; // Sets the animation style to follow the animation of your chosen vanilla Town NPC.
+    }
+
+    public override string GetChat()
+    {
+      if (NPC.downedMoonlord)
+      {
+        return "Evil in this iteration of world has been felled. I can shift you to the next plane.";
+      }
+      else
+      {
+        return "Defeat the evil in this world.";
+      }
     }
 
     public override bool CanTownNPCSpawn(int numTownNPCs)

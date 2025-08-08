@@ -341,6 +341,8 @@ namespace Rebirthing
         this.RebirthData = new PlayerData();
       }
       Main.blockInput = false;
+
+      Rebirthing.Instance.GetDifficulty();
     }
 
     public override void PostUpdateMiscEffects()
