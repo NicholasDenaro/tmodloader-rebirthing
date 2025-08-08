@@ -62,8 +62,7 @@ namespace Rebirthing
     public void Rebirth()
     {
       this.Rebirths++;
-      // int points = (int)(Math.Log(Math.Max((this.Level - 20) / 5, 1)) / Math.Log(20) * 100 * Rebirthing.SpecsRate);
-      int points = this.Level;
+      int points = (int)(this.Level * Rebirthing.SpecsRate);
       this.RebirthPoints += points;
       Rebirthing.Write("Gained " + points + " rebirth energy");
       this.Level = 1;
@@ -72,7 +71,7 @@ namespace Rebirthing
 
     public void Respec()
     {
-      this.RebirthPoints = this.TotalLevel - this.Level;
+      this.RebirthPoints = (int)((this.TotalLevel - this.Level) * Rebirthing.SpecsRate);
       Rebirthing.Write("Reclaimed " + this.RebirthPoints + " rebirth energy");
       this.RebirthAttributes.Clear();
     }
@@ -86,7 +85,7 @@ namespace Rebirthing
       this.TranscendencePoints += levels / 5;
       Rebirthing.Write("Gained " + (levels / 5) + " transcendence energy");
       this.Level = 0;
-      this.RebirthPoints = this.TotalLevel;
+      this.RebirthPoints = (int)(this.TotalLevel * Rebirthing.SpecsRate);
       this.RebirthAttributes.Clear();
     }
 

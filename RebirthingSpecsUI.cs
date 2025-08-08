@@ -120,7 +120,6 @@ namespace Rebirthing
     {
       this.Top.Percent = 0.20f;
       this.Left.Percent = 0.30f;
-      // this.Width.Percent = 0.50f;
       this.Width.Percent = 0.30f;
       this.Height.Percent = 0.60f;
 
@@ -280,7 +279,7 @@ namespace Rebirthing
       UIText current = new UIText("Current value: " + Rebirthing.Player.GetAttributeValue(text));
       this.descriptionList.Add(current);
 
-      int cost = (int)Math.Pow(1.15, attr.Level);
+      int cost = Rebirthing.Player.GetAttributeCost(text);
       this.descriptionList.Add(new UIText("Cost: " + cost));
       UIButton<string> upgrade = new UIButton<string>("Upgrade")
       {
@@ -333,7 +332,7 @@ namespace Rebirthing
       UIText current = new UIText("Current value: " + Rebirthing.Player.GetTAttributeValue(text));
       this.descriptionList.Add(current);
 
-      int cost = (int)Math.Pow(1.15, attr.Level);
+      int cost = Rebirthing.Player.GetTAttributeCost(text);
       this.descriptionList.Add(new UIText("Cost: " + cost));
       UIButton<string> upgrade = new UIButton<string>("Upgrade")
       {

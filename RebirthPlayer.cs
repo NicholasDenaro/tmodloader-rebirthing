@@ -368,6 +368,8 @@ namespace Rebirthing
       this.Player.tileSpeed = (this.Player.tileSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
 
       this.Player.blockRange = (int)((this.Player.blockRange + this.GetAttributeValue("Reach")) * (1 + this.GetTAttributeValue("Reach")));
+
+      this.Player.wingTimeMax = (int)((this.Player.wingTimeMax + this.GetAttributeValue("Flight")) * (1 + this.GetTAttributeValue("Flight")));
     }
 
     public override void ModifyMaxStats(out StatModifier health, out StatModifier mana)
@@ -520,6 +522,23 @@ namespace Rebirthing
       float perLevel = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Value"));
 
       return level * perLevel;
+    }
+
+    public int GetAttributeCost(string name)
+    {
+      int level = this.GetAttribute(name).Level;
+      float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Cost"));
+      float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Scale"));
+      // (int)Math.Pow(1.15, level) the original scaling.
+      return (int)(baseCost * Math.Pow(scaleRate, level));
+    }
+    public int GetTAttributeCost(string name)
+    {
+      int level = this.GetTAttribute(name).Level;
+      float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Cost"));
+      float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Scale"));
+      // (int)Math.Pow(1.15, level) the original scaling.
+      return (int)(baseCost * Math.Pow(scaleRate, level));
     }
   }
 

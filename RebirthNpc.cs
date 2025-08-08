@@ -32,12 +32,6 @@ namespace Rebirthing
       // }
     }
 
-    public override void OnSpawn(NPC npc, IEntitySource source)
-    {
-      npc.lifeMax = (int)(npc.lifeMax * Math.Pow(2, Rebirthing.Instance.WorldIncrement));
-      npc.defense = (int)(npc.defense * Math.Pow(2, Rebirthing.Instance.WorldIncrement));
-      npc.damage = (int)(npc.damage * Math.Pow(2, Rebirthing.Instance.WorldIncrement));
-    }
   }
 
   [AutoloadHead]

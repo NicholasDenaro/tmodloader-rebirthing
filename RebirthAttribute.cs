@@ -15,6 +15,7 @@ namespace Rebirthing
       "Mana",
       "Mana Regen",
       "Speed",
+      "Flight",
       "Damage",
       "Armor Pen",
       "Attack Speed",
@@ -23,7 +24,7 @@ namespace Rebirthing
       "Max Minions",
       "Block Break Speed",
       "Buff Duration",
-      "Reach"
+      "Reach",
     };
   }
 }

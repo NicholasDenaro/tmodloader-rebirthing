@@ -52,11 +52,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base health (+10)
 			Value: "10"
+			Scale: "1.15"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Base health (+5%)
 			Value: "0.05"
+			Scale: "1.15"
+			Cost: "1"
 		}
 	}
 
@@ -64,11 +68,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base health regen (+0.5/s)
 			Value: "0.5"
+			Scale: "1.2"
+			Cost: "5"
 		}
 
 		Transcendence: {
 			Description: Base health regen (+1%)
 			Value: "0.01"
+			Scale: "1.2"
+			Cost: "5"
 		}
 	}
 
@@ -76,11 +84,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base defense (+2)
 			Value: "2"
+			Scale: "1.15"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Base defense (+5%)
 			Value: "0.05"
+			Scale: "1.15"
+			Cost: "1"
 		}
 	}
 
@@ -88,11 +100,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base mana (+10)
 			Value: "10"
+			Scale: "1.15"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Base mana (+5%)
 			Value: "0.05"
+			Scale: "1.15"
+			Cost: "1"
 		}
 	}
 
@@ -100,11 +116,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base mana regen (+0.5/s)
 			Value: "0.5"
+			Scale: "1.2"
+			Cost: "5"
 		}
 
 		Transcendence: {
 			Description: Base mana regen (+1%)
 			Value: "0.01"
+			Scale: "1.2"
+			Cost: "5"
 		}
 	}
 
@@ -112,11 +132,31 @@ Attributes: {
 		Rebirth: {
 			Description: Base speed (+5%)
 			Value: "0.05"
+			Scale: "1.2"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Base speed (+10%)
 			Value: "0.1"
+			Scale: "1.2"
+			Cost: "1"
+		}
+	}
+
+	Flight: {
+		Rebirth: {
+			Description: Flight Distance (+1)
+			Value: "1"
+			Scale: "1.5"
+			Cost: "1"
+		}
+
+		Transcendence: {
+			Description: Flight Distance (+10%)
+			Value: "0.1"
+			Scale: "1.15"
+			Cost: "1"
 		}
 	}
 
@@ -124,11 +164,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base damage (+1)
 			Value: "1"
+			Scale: "1.15"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Base damage (+1%)
 			Value: "0.01"
+			Scale: "1.15"
+			Cost: "1"
 		}
 	}
 
@@ -136,11 +180,15 @@ Attributes: {
 		Rebirth: {
 			Description: Armor penetration (+1)
 			Value: "1"
+			Scale: "1.15"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Armor penetration (+10%)
 			Value: "0.1"
+			Scale: "1.15"
+			Cost: "1"
 		}
 	}
 
@@ -148,11 +196,15 @@ Attributes: {
 		Rebirth: {
 			Description: Base attack speed (+5%)
 			Value: "0.05"
+			Scale: "1.15"
+			Cost: "1"
 		}
 
 		Transcendence: {
 			Description: Base attack speed (+10%)
 			Value: "0.1"
+			Cost: "1"
+			Scale: "1.15"
 		}
 	}
 
@@ -160,11 +212,15 @@ Attributes: {
 		Rebirth: {
 			Description: Critical damage rate (+2%)
 			Value: "0.02"
+			Cost: "1"
+			Scale: "1.15"
 		}
 
 		Transcendence: {
 			Description: Critical damage rate (+5%)
 			Value: "0.05"
+			Cost: "5"
+			Scale: "1.2"
 		}
 	}
 
@@ -172,11 +228,15 @@ Attributes: {
 		Rebirth: {
 			Description: Critical dmage (+2%)
 			Value: "0.02"
+			Cost: "1"
+			Scale: "1.1"
 		}
 
 		Transcendence: {
 			Description: Critical dmage (+5%)
 			Value: "0.05"
+			Cost: "1"
+			Scale: "1.1"
 		}
 	}
 
@@ -184,11 +244,15 @@ Attributes: {
 		Rebirth: {
 			Description: Maximum Minion Slots (+1)
 			Value: "1"
+			Cost: "20"
+			Scale: "1.025"
 		}
 
 		Transcendence: {
 			Description: Maximum Minion Slots (+25%)
 			Value: "0.25"
+			Cost: "1"
+			Scale: "1.15"
 		}
 	}
 
@@ -196,11 +260,15 @@ Attributes: {
 		Rebirth: {
 			Description: Block breaking speed (+2%)
 			Value: "0.02"
+			Cost: "1"
+			Scale: "1.1"
 		}
 
 		Transcendence: {
 			Description: Block breaking speed (+10%)
 			Value: "0.1"
+			Cost: "1"
+			Scale: "1.1"
 		}
 	}
 
@@ -208,11 +276,15 @@ Attributes: {
 		Rebirth: {
 			Description: Buff Duration (+10%)
 			Value: "0.1"
+			Cost: "1"
+			Scale: "1.15"
 		}
 
 		Transcendence: {
 			Description: Buff Duration (+20%)
 			Value: "0.2"
+			Cost: "1"
+			Scale: "1.15"
 		}
 	}
 
@@ -220,11 +292,15 @@ Attributes: {
 		Rebirth: {
 			Description: Block Reach (+1)
 			Value: "1"
+			Cost: "1"
+			Scale: "1.15"
 		}
 
 		Transcendence: {
 			Description: Block Reach (+25%)
 			Value: "0.25"
+			Cost: "1"
+			Scale: "1.15"
 		}
 	}
 }

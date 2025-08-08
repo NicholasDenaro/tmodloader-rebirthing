@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -147,7 +148,61 @@ namespace Rebirthing
 
     public void IncrementWorld()
     {
-      WorldIncrement++;
+      NPC.downedAncientCultist = false;
+      NPC.downedBoss1 = false;
+      NPC.downedBoss2 = false;
+      NPC.downedBoss3 = false;
+      NPC.downedChristmasIceQueen = false;
+      NPC.downedChristmasSantank = false;
+      NPC.downedChristmasTree = false;
+      NPC.downedClown = false;
+      NPC.downedDeerclops = false;
+      NPC.downedEmpressOfLight = false;
+      NPC.downedFishron = false;
+      NPC.downedFrost = false;
+      NPC.downedGoblins = false;
+      NPC.downedGolemBoss = false;
+      NPC.downedHalloweenKing = false;
+      NPC.downedHalloweenTree = false;
+      NPC.downedMartians = false;
+      NPC.downedMechBoss1 = false;
+      NPC.downedMechBoss2 = false;
+      NPC.downedMechBoss3 = false;
+      NPC.downedMechBossAny = false;
+      NPC.downedMoonlord = false;
+      NPC.downedPirates = false;
+      NPC.downedPlantBoss = false;
+      NPC.downedQueenBee = false;
+      NPC.downedQueenSlime = false;
+      NPC.downedSlimeKing = false;
+      NPC.downedTowerNebula = false;
+      NPC.downedTowerSolar = false;
+      NPC.downedTowerStardust = false;
+      NPC.downedTowerVortex = false;
+      
+      if (Main.GameMode == GameModeID.Normal)
+      {
+        Main.GameMode = GameModeID.Expert;
+        Rebirthing.Write("Setting Mode to Expert");
+      }
+      else if (Main.GameMode == GameModeID.Expert)
+      {
+        Main.GameMode = GameModeID.Master;
+        Rebirthing.Write("Setting Mode to Master");
+      }
+      else
+      {
+        WorldIncrement++;
+        Rebirthing.Write("Increasing world difficulty");
+        GameModeData masterData = Main.RegisteredGameModes[GameModeID.Master];
+        GameModeData data = Main.GameModeInfo;
+        data.EnemyDamageMultiplier = masterData.EnemyDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+        data.EnemyDefenseMultiplier = masterData.EnemyDefenseMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+        data.EnemyMaxLifeMultiplier = masterData.EnemyMaxLifeMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+        data.TownNPCDamageMultiplier = masterData.TownNPCDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+        Main.RegisteredGameModes.Add(100 + WorldIncrement, data);
+        Main.GameMode = 100 + WorldIncrement;
+      }
     }
   }
 
@@ -160,6 +215,30 @@ namespace Rebirthing
     public override void Action(CommandCaller caller, string input, string[] args)
     {
       Rebirthing.Player.AwardExp(int.Parse(args[0]));
+    }
+  }
+
+  public class IncrementWorldCommand : ModCommand
+  {
+    public override string Command => "increment";
+
+    public override CommandType Type => CommandType.World;
+
+    public override void Action(CommandCaller caller, string input, string[] args)
+    {
+      Rebirthing.Instance.IncrementWorld();
+    }
+  }
+
+  public class ShowIncrementWorldCommand : ModCommand
+  {
+    public override string Command => "world";
+
+    public override CommandType Type => CommandType.World;
+
+    public override void Action(CommandCaller caller, string input, string[] args)
+    {
+      Rebirthing.Write("World Increment: " + Rebirthing.Instance.WorldIncrement);
     }
   }
 
@@ -178,7 +257,7 @@ namespace Rebirthing
       }
       else
       {
-        Rebirthing.Instance.WorldIncrement = 1;
+        Rebirthing.Instance.WorldIncrement = 0;
       }
     }
   }
