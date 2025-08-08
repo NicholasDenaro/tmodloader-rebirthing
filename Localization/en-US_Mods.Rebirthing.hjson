@@ -233,8 +233,8 @@ Attributes: {
 		}
 
 		Transcendence: {
-			Description: Critical dmage (+5%)
-			Value: "0.05"
+			Description: Critical dmage (x +25%)
+			Value: "0.25"
 			Cost: "1"
 			Scale: "1.1"
 		}

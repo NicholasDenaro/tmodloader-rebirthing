@@ -60,17 +60,17 @@ namespace Rebirthing
     {
       int damageSpec = this.GetAttribute("Damage").Level;
 
-      float damageSpecT = 1 + this.GetTAttribute("Damage").Level * 0.01f;
+      float damageSpecT = 1 + this.GetTAttributeValue("Damage");
 
       double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo((Player.HeldItem.damage + damageSpec) * damageSpecT);
 
       modifiers.SourceDamage.Base += damageSpec;
 
-      float critDamage = this.GetAttribute("Crit Damage").Level * 0.02f;
-      float critDamageT = this.GetTAttribute("Crit Damage").Level * 0.05f;
+      float critDamage = this.GetAttributeValue("Crit Damage");
+      float critDamageT = 1 + this.GetTAttributeValue("Crit Damage");
 
       // Takes into account the rate
-      modifiers.CritDamage += critDamage + critDamageT;
+      modifiers.CritDamage += critDamage * critDamageT;
 
       if (!damageToNpc.ContainsKey(target.whoAmI))
       {
