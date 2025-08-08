@@ -197,6 +197,7 @@ namespace Rebirthing
     public override void OnActivate()
     {
       this.UpdateAmounts();
+      this.SetDescription(RebirthAttribute.List[0]);
     }
 
     private void UpdateAmounts()
@@ -260,6 +261,11 @@ namespace Rebirthing
     private void SetRebirthDescription(string text)
     {
       if (!RebirthAttribute.List.Contains(text))
+      {
+        return;
+      }
+
+      if (Rebirthing.Player == null)
       {
         return;
       }

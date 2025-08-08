@@ -86,6 +86,13 @@ namespace Rebirthing
           int exp = reader.ReadInt32();
           this.AwardExpForMining(x, y, exp);
           break;
+        case MessageType.MESSAGE:
+          string message = reader.ReadString();
+          byte r = reader.ReadByte();
+          byte g = reader.ReadByte();
+          byte b = reader.ReadByte();
+          Rebirthing.Write(message, r, g, b);
+          break;
       }
     }
 
@@ -115,10 +122,21 @@ namespace Rebirthing
       }
     }
 
-    public static void Write(string message)
+    public static void Write(string message, byte r = 255, byte g = 255, byte b = 255)
     {
-      Main.NewText(message);
+      Main.NewText(message, r, g, b);
       Console.WriteLine(message);
+
+      if (IsServer)
+      {
+        ModPacket packet = Rebirthing.Instance.GetPacket();
+        packet.Write((byte)MessageType.MESSAGE);
+        packet.Write(message);
+        packet.Write(r);
+        packet.Write(g);
+        packet.Write(b);
+        packet.Send();
+      }
     }
 
     internal void AwardExpForMining(int x, int y, int exp)
@@ -179,30 +197,29 @@ namespace Rebirthing
       NPC.downedTowerSolar = false;
       NPC.downedTowerStardust = false;
       NPC.downedTowerVortex = false;
-      
+
       if (Main.GameMode == GameModeID.Normal)
       {
         Main.GameMode = GameModeID.Expert;
-        Rebirthing.Write("Setting Mode to Expert");
       }
       else if (Main.GameMode == GameModeID.Expert)
       {
         Main.GameMode = GameModeID.Master;
-        Rebirthing.Write("Setting Mode to Master");
       }
       else
       {
         WorldIncrement++;
-        Rebirthing.Write("Increasing world difficulty");
         GameModeData masterData = Main.RegisteredGameModes[GameModeID.Master];
         GameModeData data = Main.GameModeInfo;
         data.EnemyDamageMultiplier = masterData.EnemyDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
         data.EnemyDefenseMultiplier = masterData.EnemyDefenseMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
         data.EnemyMaxLifeMultiplier = masterData.EnemyMaxLifeMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
         data.TownNPCDamageMultiplier = masterData.TownNPCDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
-        Main.RegisteredGameModes.Add(100 + WorldIncrement, data);
-        Main.GameMode = 100 + WorldIncrement;
+        Main.RegisteredGameModes.Add(10 + WorldIncrement, data);
+        Main.GameMode = 10 + WorldIncrement;
       }
+
+      Rebirthing.Write("The world shifts and grows stronger", 50, 50, 50);
     }
   }
 
@@ -254,13 +271,32 @@ namespace Rebirthing
       if (tag.ContainsKey("WorldIncrement"))
       {
         Rebirthing.Instance.WorldIncrement = tag.Get<int>("WorldIncrement");
+
+        try
+        {
+          GameModeData masterData = Main.RegisteredGameModes[GameModeID.Master];
+          GameModeData data = Main.GameModeInfo;
+          data.EnemyDamageMultiplier = masterData.EnemyDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+          data.EnemyDefenseMultiplier = masterData.EnemyDefenseMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+          data.EnemyMaxLifeMultiplier = masterData.EnemyMaxLifeMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+          data.TownNPCDamageMultiplier = masterData.TownNPCDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+          Main.RegisteredGameModes.Add(10 + Rebirthing.Instance.WorldIncrement, data);
+          Main.GameMode = 10 + Rebirthing.Instance.WorldIncrement;
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex);
+        }
+        
       }
       else
       {
         Rebirthing.Instance.WorldIncrement = 0;
       }
+
+
     }
   }
 
-  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING }
+  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE }
 }

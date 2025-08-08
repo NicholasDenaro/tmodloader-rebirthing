@@ -239,8 +239,14 @@ namespace Rebirthing
     {
       if (firstButton)
       {
-        // TODO reset all the boss flags?
-        Rebirthing.Instance.IncrementWorld();
+        if (NPC.downedMoonlord)
+        {
+          Rebirthing.Instance.IncrementWorld();
+        }
+        else
+        {
+          Main.npcChatText = "Talk to me again after defeating the Moon Lord";
+        }
       }
     }
   }
