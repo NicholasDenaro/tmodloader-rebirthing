@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Terraria;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -17,17 +18,15 @@ namespace Rebirthing
 
     public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot)
     {
-      // Doesn't seem to work
-      // foreach (IItemDropRule dropRule in npcLoot.Get())
-      // {
-      //   Rebirthing.Write("drop rule" + dropRule);
-      //   if (dropRule is DropBasedOnExpertMode drop && drop.ruleForNormalMode is CommonDrop normalDropRule)
-      //   {
-      //     normalDropRule.chanceNumerator = (int)(normalDropRule.chanceNumerator * Rebirthing.DropRate);
-      //     normalDropRule.amountDroppedMinimum = Math.Max(Math.Min(normalDropRule.amountDroppedMinimum, 1), (int)(normalDropRule.amountDroppedMinimum * Rebirthing.DropCountRate));
-      //     normalDropRule.amountDroppedMaximum = Math.Max(Math.Min(normalDropRule.amountDroppedMaximum, 1), (int)(normalDropRule.amountDroppedMaximum * Rebirthing.DropCountRate));
-      //   }
-      // }
+      foreach (IItemDropRule dropRule in npcLoot.Get())
+      {
+        if (dropRule is DropBasedOnExpertMode drop && drop.ruleForNormalMode is CommonDrop normalDropRule)
+        {
+          normalDropRule.chanceNumerator = (int)(normalDropRule.chanceNumerator * Rebirthing.DropRate);
+          normalDropRule.amountDroppedMinimum = Math.Max(Math.Min(normalDropRule.amountDroppedMinimum, 1), (int)(normalDropRule.amountDroppedMinimum * Rebirthing.DropCountRate));
+          normalDropRule.amountDroppedMaximum = Math.Max(Math.Min(normalDropRule.amountDroppedMaximum, 1), (int)(normalDropRule.amountDroppedMaximum * Rebirthing.DropCountRate));
+        }
+      }
     }
 
   }

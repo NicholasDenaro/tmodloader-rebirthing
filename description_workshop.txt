@@ -1,1 +1,49 @@
-This description will show up on the steam page, check out https://steamcommunity.com/comment/Guide/formattinghelp.
+[h1] Rebirthing [/h1]
+Add a leveling, rebirth, and transcendence system to Terraria.
+Rebirth to increase your stats and become super strong.
+
+[h2] Ways to Level up[/h2]
+You can level up through the following activities:
+[list]
+[*]Killing enemies
+[*]Mining valuable blocks
+[*]Fishing
+[*]Crafting
+[/list]
+
+The amount of exp per level is calculated by: [code]20 + (int)Math.Pow(5, 1 + (level - 1.0) / 10)[/code]
+
+[h2] NPCs [/h2]
+[h3] The Rebirther [/h3]
+The Rebirther is immediately unlocked and available to move in.
+Talk to the Rebirther to rebirth and reset your levels and gain Rebirth Energy. You will gain 1 Rebirth Energy per level.
+Spend Rebirth Energy to increase your stats, like Health, Health Regen, Speed, Damage, Critical Chance, etc.
+
+[h3] The Transcender [/h3]
+The Transcender is unlocked once a player reacher total level 50 or has already transcended.
+Talk to the Transcender to transcend, consuming your rebirth energy to gain Transcendence Energy.
+Transcendence Energy can be used similar to Rebirth Energy but provides extra stats on top of rebirth stats.
+Transcendence stats are usually multiplicative on top of Rebirth stats, so they can provide extra boost.
+
+[h3] The Terra Lord [/h3]
+The Terra Lord is unlocked once the Moon Lord has been defeated at least one time.
+Talk to the Terra Lord to reset the vanilla boss process and increase the game difficulty.
+
+Difficulty progresses as following:
+Normal -> Expert
+Expert -> Master
+Master -> Master+
+Master+ -> Master++ (etc)
+
+Each level of Master+ multiplies the stats of enemies by 2.
+This means that Master++ will give x4 stats, and Master+++ will give x8 stats.
+
+[h2]Configuartion[/h2]
+You can configure:
+[list]
+[*]the exp multiplier
+[*]the coin multiplier
+[*]the rebirth energy multiplier
+[*]TODO: the drop chance multiplier
+[*]TODO: the drop amount multiplier
+[/list]

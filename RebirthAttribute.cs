@@ -7,6 +7,15 @@ namespace Rebirthing
     public string Id { get; set; }
     public int Level { get; set; }
 
+    public RebirthAttribute Clone()
+    {
+      return new RebirthAttribute()
+      {
+        Id = this.Id,
+        Level = this.Level
+      };
+    }
+
     public static List<string> List = new List<string>()
     {
       "Health",

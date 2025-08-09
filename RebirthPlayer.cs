@@ -58,13 +58,15 @@ namespace Rebirthing
 
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
     {
-      int damageSpec = this.GetAttribute("Damage").Level;
+      // int damageSpec = this.GetAttribute("Damage").Level;
 
-      float damageSpecT = 1 + this.GetTAttributeValue("Damage");
+      // float damageSpecT = 1 + this.GetTAttributeValue("Damage");
 
-      double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo((Player.HeldItem.damage + damageSpec) * damageSpecT);
+      // double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo((Player.HeldItem.damage + damageSpec) * damageSpecT);
 
-      modifiers.SourceDamage.Base += damageSpec;
+      // modifiers.SourceDamage.Base += damageSpec;
+
+      float damage = modifiers.FinalDamage.Base;
 
       float critDamage = this.GetAttributeValue("Crit Damage");
       float critDamageT = 1 + this.GetTAttributeValue("Crit Damage");
@@ -109,7 +111,7 @@ namespace Rebirthing
 
       foreach (HitTile.HitTileObject data in this.Player.hitTile?.data)
       {
-        if (data.type != 0)
+        if (data.type != 0 && data.damage > 0)
         {
           brokenTiles.Add(new BrokenTile(data.X, data.Y));
         }
@@ -364,6 +366,13 @@ namespace Rebirthing
       this.Player.GetCritChance(DamageClass.Magic) = (this.Player.GetCritChance(DamageClass.Magic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
       this.Player.GetCritChance(DamageClass.Ranged) = (this.Player.GetCritChance(DamageClass.Ranged) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
 
+      // TODO: Get this to work properly. it shows the right amount of damage on the weapons
+      // I don't think the multiplication here is correct
+      this.Player.GetDamage(DamageClass.Default) = (this.Player.GetDamage(DamageClass.Default) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
+      this.Player.GetDamage(DamageClass.Melee) = (this.Player.GetDamage(DamageClass.Melee) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
+      this.Player.GetDamage(DamageClass.Magic) = (this.Player.GetDamage(DamageClass.Magic) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
+      this.Player.GetDamage(DamageClass.Ranged) = (this.Player.GetDamage(DamageClass.Ranged) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
+
       this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") + (1 + this.GetTAttributeValue("Max Minions")));
 
       this.Player.pickSpeed = (this.Player.pickSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
@@ -412,8 +421,89 @@ namespace Rebirthing
       Console.WriteLine("LOG: Loaded player data");
     }
 
-    public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
+    // public override void SendClientChanges(ModPlayer clientPlayer)
+    // {
+    //   RebirthPlayer clone = clientPlayer as RebirthPlayer;
+
+    //   if (!IsSynced(clone))
+    //   {
+    //     this.SyncWithServer();
+    //   }
+    // }
+
+    // public override void CopyClientState(ModPlayer targetCopy)
+    // {
+    //   RebirthPlayer clone = targetCopy as RebirthPlayer;
+
+    //   clone.RebirthData.RebirthAttributes.Clear();
+    //   foreach (var kvp in this.RebirthData.RebirthAttributes)
+    //   {
+    //     clone.SetAttribute(this.GetAttribute(kvp.Key).Clone());
+    //   }
+
+    //   clone.RebirthData.TranscendenceAttributes.Clear();
+    //   foreach (var kvp in this.RebirthData.TranscendenceAttributes)
+    //   {
+    //     clone.SetTAttribute(this.GetTAttribute(kvp.Key).Clone());
+    //   }
+    // }
+
+    // private bool IsSynced(RebirthPlayer clone)
+    // {
+    //   if (this.RebirthData.RebirthAttributes.Count != clone.RebirthData.RebirthAttributes.Count)
+    //   {
+    //     return false;
+    //   }
+
+    //   if (this.RebirthData.TranscendenceAttributes.Count != clone.RebirthData.TranscendenceAttributes.Count)
+    //   {
+    //     return false;
+    //   }
+
+    //   foreach (var kvp in this.RebirthData.RebirthAttributes)
+    //   {
+    //     if (clone.RebirthData.RebirthAttributes[kvp.Key].Level != kvp.Value.Level)
+    //     {
+    //       return false;
+    //     }
+    //   }
+
+    //   foreach (var kvp in this.RebirthData.TranscendenceAttributes)
+    //   {
+    //     if (clone.RebirthData.TranscendenceAttributes[kvp.Key].Level != kvp.Value.Level)
+    //     {
+    //       return false;
+    //     }
+    //   }
+
+    //   return true;
+    // }
+
+    public void SyncWithServer()
     {
+      if (Rebirthing.IsClient)
+      {
+        if (Main.myPlayer == this.Player.whoAmI)
+        {
+          ModPacket packet = Rebirthing.Instance.GetPacket();
+          packet.Write((byte)MessageType.SYNC_STATS);
+          packet.Write(this.Player.whoAmI);
+          packet.Write(this.RebirthData.RebirthAttributes.Count);
+          List<string> attrKeys = this.RebirthData.RebirthAttributes.Keys.ToList();
+          foreach (var kvp in this.RebirthData.RebirthAttributes)
+          {
+            packet.Write(kvp.Value.Id);
+            packet.Write(kvp.Value.Level);
+          }
+          packet.Write(this.RebirthData.TranscendenceAttributes.Count);
+          foreach (var kvp in this.RebirthData.TranscendenceAttributes)
+          {
+            packet.Write(kvp.Value.Id);
+            packet.Write(kvp.Value.Level);
+          }
+          packet.Send();
+        }
+      }
     }
 
     public void killNpc(int whoAmI)
@@ -454,6 +544,8 @@ namespace Rebirthing
       this.rebirthTimer = 5 * 60;
       this.rebirthing = true;
       Main.blockInput = true;
+
+      this.SyncWithServer();
     }
 
     public void EndRebirth()
@@ -471,11 +563,13 @@ namespace Rebirthing
     public void Respec()
     {
       this.RebirthData.Respec();
+      this.SyncWithServer();
     }
 
     public void RespecTranscendance()
     {
       this.RebirthData.RespecTranscendance();
+      this.SyncWithServer();
     }
 
     public RebirthAttribute GetAttribute(string name)
@@ -494,6 +588,20 @@ namespace Rebirthing
       }
     }
 
+    public void SetAttribute(RebirthAttribute attr)
+    {
+      if (!Rebirthing.Player.RebirthData.RebirthAttributes.ContainsKey(attr.Id))
+      {
+        Rebirthing.Player.RebirthData.RebirthAttributes[attr.Id] = attr;
+      }
+      else
+      {
+        Rebirthing.Player.RebirthData.RebirthAttributes[attr.Id].Level = attr.Level;
+      }
+
+      this.SyncWithServer();
+    }
+
     public RebirthAttribute GetTAttribute(string name)
     {
       if (this.RebirthData.TranscendenceAttributes.ContainsKey(name))
@@ -508,6 +616,20 @@ namespace Rebirthing
           Level = 0
         };
       }
+    }
+
+    public void SetTAttribute(RebirthAttribute attr)
+    {
+      if (!Rebirthing.Player.RebirthData.TranscendenceAttributes.ContainsKey(attr.Id))
+      {
+        Rebirthing.Player.RebirthData.TranscendenceAttributes[attr.Id] = attr;
+      }
+      else
+      {
+        Rebirthing.Player.RebirthData.TranscendenceAttributes[attr.Id].Level = attr.Level;
+      }
+
+      this.SyncWithServer();
     }
 
     public float GetAttributeValue(string name)
@@ -526,17 +648,18 @@ namespace Rebirthing
       return level * perLevel;
     }
 
-    public int GetAttributeCost(string name)
+    public int GetAttributeCost(string name, int? lvl = null)
     {
-      int level = this.GetAttribute(name).Level;
+      int level = lvl ?? this.GetAttribute(name).Level;
       float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Cost"));
       float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Scale"));
       // (int)Math.Pow(1.15, level) the original scaling.
       return (int)(baseCost * Math.Pow(scaleRate, level));
     }
-    public int GetTAttributeCost(string name)
+
+    public int GetTAttributeCost(string name, int? lvl = null)
     {
-      int level = this.GetTAttribute(name).Level;
+      int level = lvl ?? this.GetTAttribute(name).Level;
       float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Cost"));
       float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Scale"));
       // (int)Math.Pow(1.15, level) the original scaling.

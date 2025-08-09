@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -98,6 +99,34 @@ namespace Rebirthing
           int increment = reader.ReadInt32();
           WorldIncrement = increment;
           this.SetDifficulty(difficulty, increment);
+          break;
+        case MessageType.SYNC_STATS:
+          int playerWhoAmI = reader.ReadInt32();
+          RebirthPlayer player = Main.player[playerWhoAmI].GetModPlayer<RebirthPlayer>();
+          int attributesCount = reader.ReadInt32();
+          for (int i = 0; i < attributesCount; i++)
+          {
+            string name = reader.ReadString();
+            int level = reader.ReadInt32();
+            RebirthAttribute attr = new RebirthAttribute()
+            {
+              Id = name,
+              Level = level
+            };
+            player.SetAttribute(attr);
+          }
+          int attributesTCount = reader.ReadInt32();
+          for (int i = 0; i < attributesTCount; i++)
+          {
+            string name = reader.ReadString();
+            int level = reader.ReadInt32();
+            RebirthAttribute attr = new RebirthAttribute()
+            {
+              Id = name,
+              Level = level
+            };
+            player.SetTAttribute(attr);
+          }
           break;
       }
     }
@@ -309,22 +338,24 @@ namespace Rebirthing
       {
         Rebirthing.Instance.WorldIncrement = tag.Get<int>("WorldIncrement");
 
-        try
+        if (Rebirthing.Instance.WorldIncrement > 0)
         {
-          GameModeData masterData = Main.RegisteredGameModes[GameModeID.Master];
-          GameModeData data = Main.GameModeInfo;
-          data.EnemyDamageMultiplier = masterData.EnemyDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
-          data.EnemyDefenseMultiplier = masterData.EnemyDefenseMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
-          data.EnemyMaxLifeMultiplier = masterData.EnemyMaxLifeMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
-          data.TownNPCDamageMultiplier = masterData.TownNPCDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
-          Main.RegisteredGameModes.Add(10 + Rebirthing.Instance.WorldIncrement, data);
-          Main.GameMode = 10 + Rebirthing.Instance.WorldIncrement;
+          try
+          {
+            GameModeData masterData = Main.RegisteredGameModes[GameModeID.Master];
+            GameModeData data = Main.GameModeInfo;
+            data.EnemyDamageMultiplier = masterData.EnemyDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+            data.EnemyDefenseMultiplier = masterData.EnemyDefenseMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+            data.EnemyMaxLifeMultiplier = masterData.EnemyMaxLifeMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+            data.TownNPCDamageMultiplier = masterData.TownNPCDamageMultiplier * (float)Math.Pow(2, Rebirthing.Instance.WorldIncrement);
+            Main.RegisteredGameModes.Add(10 + Rebirthing.Instance.WorldIncrement, data);
+            Main.GameMode = 10 + Rebirthing.Instance.WorldIncrement;
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine(ex);
+          }
         }
-        catch (Exception ex)
-        {
-          Console.WriteLine(ex);
-        }
-        
       }
       else
       {
@@ -335,5 +366,5 @@ namespace Rebirthing
     }
   }
 
-  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE, DIFFICULTY, GET_DIFFICULTY }
+  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE, DIFFICULTY, GET_DIFFICULTY, SYNC_STATS }
 }

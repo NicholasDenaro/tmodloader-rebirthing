@@ -1,1 +1,46 @@
-Modify this file with a description of your mod.
+Add a leveling, rebirth, and transcendence system to Terraria.
+Rebirth to increase your stats and become super strong.
+
+You can level up through the following activities:
+- Killing enemies
+- Mining valuable blocks
+- Fishing
+- Crafting
+
+The amount of exp per level is calculated by: 20 + (int)Math.Pow(5, 1 + (level - 1.0) / 10)
+
+The Rebirther
+
+The Rebirther is immediately unlocked and available to move in.
+Talk to the Rebirther to rebirth and reset your levels and gain Rebirth Energy. You will gain 1 Rebirth Energy per level.
+Spend Rebirth Energy to increase your stats, like Health, Health Regen, Speed, Damage, Critical Chance, etc.
+
+The Transcender
+
+The Transcender is unlocked once a player reacher total level 50 or has already transcended.
+Talk to the Transcender to transcend, consuming your rebirth energy to gain Transcendence Energy.
+Transcendence Energy can be used similar to Rebirth Energy but provides extra stats on top of rebirth stats.
+Transcendence stats are usually multiplicative on top of Rebirth stats, so they can provide extra boost.
+
+The Terra Lord
+
+The Terra Lord is unlocked once the Moon Lord has been defeated at least one time.
+Talk to the Terra Lord to reset the vanilla boss process and increase the game difficulty.
+
+Difficulty progresses as following:
+Normal -> Expert
+Expert -> Master
+Master -> Master+
+Master+ -> Master++ (etc)
+
+Each level of Master+ multiplies the stats of enemies by 2.
+This means that Master++ will give x4 stats, and Master+++ will give x8 stats.
+
+Configuartion
+
+You can configure:
+- the exp multiplier
+- the coin multiplier
+- the rebirth energy multiplier
+- TODO: the drop chance multiplier
+- TODO: the drop amount multiplier
