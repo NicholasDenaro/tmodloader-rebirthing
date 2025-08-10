@@ -352,6 +352,9 @@ namespace Rebirthing
       this.Player.moveSpeed = this.Player.moveSpeed * (1 + this.GetAttributeValue("Speed")) * (1 + this.GetTAttributeValue("Speed"));
 
       this.Player.GetAttackSpeed(DamageClass.Default) = this.Player.GetAttackSpeed(DamageClass.Default) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      this.Player.GetAttackSpeed(DamageClass.Melee) = this.Player.GetAttackSpeed(DamageClass.Melee) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      this.Player.GetAttackSpeed(DamageClass.Ranged) = this.Player.GetAttackSpeed(DamageClass.Ranged) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      this.Player.GetAttackSpeed(DamageClass.Magic) = this.Player.GetAttackSpeed(DamageClass.Magic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
 
       this.Player.statDefense = (this.Player.statDefense + (int)this.GetAttributeValue("Defense")) * (1 + this.GetTAttributeValue("Defense"));
 
@@ -366,12 +369,17 @@ namespace Rebirthing
       this.Player.GetCritChance(DamageClass.Magic) = (this.Player.GetCritChance(DamageClass.Magic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
       this.Player.GetCritChance(DamageClass.Ranged) = (this.Player.GetCritChance(DamageClass.Ranged) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
 
-      // TODO: Get this to work properly. it shows the right amount of damage on the weapons
-      // I don't think the multiplication here is correct
-      this.Player.GetDamage(DamageClass.Default) = (this.Player.GetDamage(DamageClass.Default) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
-      this.Player.GetDamage(DamageClass.Melee) = (this.Player.GetDamage(DamageClass.Melee) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
-      this.Player.GetDamage(DamageClass.Magic) = (this.Player.GetDamage(DamageClass.Magic) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
-      this.Player.GetDamage(DamageClass.Ranged) = (this.Player.GetDamage(DamageClass.Ranged) + this.GetAttributeValue("Damage")) * (1 + this.GetTAttributeValue("Damage"));
+      this.Player.GetDamage(DamageClass.Default).Base += this.GetAttributeValue("Damage");
+      this.Player.GetDamage(DamageClass.Default) += this.GetTAttributeValue("Damage");
+
+      this.Player.GetDamage(DamageClass.Melee).Base += this.GetAttributeValue("Damage");
+      this.Player.GetDamage(DamageClass.Melee) += this.GetTAttributeValue("Damage");
+
+      this.Player.GetDamage(DamageClass.Ranged).Base += this.GetAttributeValue("Damage");
+      this.Player.GetDamage(DamageClass.Ranged) += this.GetTAttributeValue("Damage");
+
+      this.Player.GetDamage(DamageClass.Magic).Base += this.GetAttributeValue("Damage");
+      this.Player.GetDamage(DamageClass.Magic) += this.GetTAttributeValue("Damage");
 
       this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") + (1 + this.GetTAttributeValue("Max Minions")));
 
