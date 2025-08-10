@@ -12,7 +12,7 @@ namespace Rebirthing
 
     public override void OnKill(NPC npc)
     {
-      Rebirthing.Instance.AwardExp(npc.whoAmI);
+      Rebirthing.Instance.AwardKillExp(npc.whoAmI);
       npc.value *= Rebirthing.CoinRate;
     }
 
@@ -23,8 +23,11 @@ namespace Rebirthing
         if (dropRule is DropBasedOnExpertMode drop && drop.ruleForNormalMode is CommonDrop normalDropRule)
         {
           normalDropRule.chanceNumerator = (int)(normalDropRule.chanceNumerator * Rebirthing.DropRate);
-          normalDropRule.amountDroppedMinimum = Math.Max(Math.Min(normalDropRule.amountDroppedMinimum, 1), (int)(normalDropRule.amountDroppedMinimum * Rebirthing.DropCountRate));
-          normalDropRule.amountDroppedMaximum = Math.Max(Math.Min(normalDropRule.amountDroppedMaximum, 1), (int)(normalDropRule.amountDroppedMaximum * Rebirthing.DropCountRate));
+          if (new Item(normalDropRule.itemId).maxStack != 1)
+          {
+            normalDropRule.amountDroppedMinimum = Math.Max(Math.Min(normalDropRule.amountDroppedMinimum, 1), (int)(normalDropRule.amountDroppedMinimum * Rebirthing.DropCountRate));
+            normalDropRule.amountDroppedMaximum = Math.Max(Math.Min(normalDropRule.amountDroppedMaximum, 1), (int)(normalDropRule.amountDroppedMaximum * Rebirthing.DropCountRate));
+          }
         }
       }
     }
@@ -156,7 +159,7 @@ namespace Rebirthing
 
     public override bool CanTownNPCSpawn(int numTownNPCs)
     {
-      return Rebirthing.Players.Any(player => player.RebirthData.TotalLevel >= 50 || player.RebirthData.TranscendenceLevel > 0);
+      return Rebirthing.Players.Any(player => player?.RebirthData?.TotalLevel >= 50 || player?.RebirthData?.TranscendenceLevel > 0);
     }
 
     public override void SetChatButtons(ref string button, ref string button2)

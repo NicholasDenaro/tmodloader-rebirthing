@@ -58,28 +58,28 @@ namespace Rebirthing
 
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
     {
-      // int damageSpec = this.GetAttribute("Damage").Level;
-
-      // float damageSpecT = 1 + this.GetTAttributeValue("Damage");
-
-      // double damage = this.Player.GetTotalDamage(modifiers.DamageType).ApplyTo((Player.HeldItem.damage + damageSpec) * damageSpecT);
-
-      // modifiers.SourceDamage.Base += damageSpec;
-
-      float damage = modifiers.FinalDamage.Base;
-
       float critDamage = this.GetAttributeValue("Crit Damage");
       float critDamageT = 1 + this.GetTAttributeValue("Crit Damage");
 
       // Takes into account the rate
       modifiers.CritDamage += critDamage * critDamageT;
+    }
+
+    public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+    {
+      int damage = damageDone;
+
+      if (target.life < 0)
+      {
+        damage = damage + target.life;
+      }
 
       if (!damageToNpc.ContainsKey(target.whoAmI))
       {
         damageToNpc.Add(target.whoAmI, 0);
       }
 
-      damageToNpc[target.whoAmI] += Math.Min((int)damage, target.life);
+      damageToNpc[target.whoAmI] += damage;
     }
 
     public override void ModifyCaughtFish(Item fish)
@@ -95,19 +95,20 @@ namespace Rebirthing
         ModContent.GetInstance<RebirthingSpecsSystem>().Hide();
       }
 
-      foreach (int whoAmI in killedNpcs)
+      int[] killed = killedNpcs.ToArray();
+      killedNpcs.Clear();
+
+      foreach (int npcWhoAmI in killed)
       {
-        if (this.damageToNpc.ContainsKey(whoAmI))
+        if (this.damageToNpc.ContainsKey(npcWhoAmI))
         {
-          int damage = this.damageToNpc[whoAmI];
+          int damage = this.damageToNpc[npcWhoAmI];
 
           this.AwardExp(damage);
 
-          this.damageToNpc.Remove(whoAmI);
+          this.damageToNpc.Remove(npcWhoAmI);
         }
       }
-
-      killedNpcs.Clear();
 
       foreach (HitTile.HitTileObject data in this.Player.hitTile?.data)
       {
@@ -351,10 +352,15 @@ namespace Rebirthing
     {
       this.Player.moveSpeed = this.Player.moveSpeed * (1 + this.GetAttributeValue("Speed")) * (1 + this.GetTAttributeValue("Speed"));
 
-      this.Player.GetAttackSpeed(DamageClass.Default) = this.Player.GetAttackSpeed(DamageClass.Default) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      this.Player.GetAttackSpeed(DamageClass.Melee) = this.Player.GetAttackSpeed(DamageClass.Melee) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      this.Player.GetAttackSpeed(DamageClass.Ranged) = this.Player.GetAttackSpeed(DamageClass.Ranged) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      this.Player.GetAttackSpeed(DamageClass.Magic) = this.Player.GetAttackSpeed(DamageClass.Magic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Default) = this.Player.GetAttackSpeed(DamageClass.Default) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Melee) = this.Player.GetAttackSpeed(DamageClass.Melee) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Ranged) = this.Player.GetAttackSpeed(DamageClass.Ranged) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Magic) = this.Player.GetAttackSpeed(DamageClass.Magic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Summon) = this.Player.GetAttackSpeed(DamageClass.Summon) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) = this.Player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.MagicSummonHybrid) = this.Player.GetAttackSpeed(DamageClass.MagicSummonHybrid) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Throwing) = this.Player.GetAttackSpeed(DamageClass.Throwing) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      this.Player.GetAttackSpeed(DamageClass.Generic) = this.Player.GetAttackSpeed(DamageClass.Generic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
 
       this.Player.statDefense = (this.Player.statDefense + (int)this.GetAttributeValue("Defense")) * (1 + this.GetTAttributeValue("Defense"));
 
@@ -362,24 +368,24 @@ namespace Rebirthing
 
       this.Player.manaRegen = (int)((this.Player.manaRegen + this.GetAttributeValue("Mana Regen")) * (1 + this.GetTAttributeValue("Mana Regen")));
 
-      this.Player.GetArmorPenetration(DamageClass.Default) = (this.Player.GetArmorPenetration(DamageClass.Default) + this.GetAttributeValue("Armor Pen")) * (1 + this.GetTAttributeValue("Armor Pen"));
+      this.Player.GetArmorPenetration(DamageClass.Generic) = (this.Player.GetArmorPenetration(DamageClass.Generic) + this.GetAttributeValue("Armor Pen")) * (1 + this.GetTAttributeValue("Armor Pen"));
 
-      this.Player.GetCritChance(DamageClass.Default) = (this.Player.GetCritChance(DamageClass.Default) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
-      this.Player.GetCritChance(DamageClass.Melee) = (this.Player.GetCritChance(DamageClass.Melee) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
-      this.Player.GetCritChance(DamageClass.Magic) = (this.Player.GetCritChance(DamageClass.Magic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
-      this.Player.GetCritChance(DamageClass.Ranged) = (this.Player.GetCritChance(DamageClass.Ranged) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      this.Player.GetCritChance(DamageClass.Generic) = (this.Player.GetCritChance(DamageClass.Generic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      // this.Player.GetCritChance(DamageClass.Melee) = (this.Player.GetCritChance(DamageClass.Melee) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      // this.Player.GetCritChance(DamageClass.Magic) = (this.Player.GetCritChance(DamageClass.Magic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
+      // this.Player.GetCritChance(DamageClass.Ranged) = (this.Player.GetCritChance(DamageClass.Ranged) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
 
-      this.Player.GetDamage(DamageClass.Default).Base += this.GetAttributeValue("Damage");
-      this.Player.GetDamage(DamageClass.Default) += this.GetTAttributeValue("Damage");
+      this.Player.GetDamage(DamageClass.Generic).Base += this.GetAttributeValue("Damage");
+      this.Player.GetDamage(DamageClass.Generic) += this.GetTAttributeValue("Damage");
 
-      this.Player.GetDamage(DamageClass.Melee).Base += this.GetAttributeValue("Damage");
-      this.Player.GetDamage(DamageClass.Melee) += this.GetTAttributeValue("Damage");
+      // this.Player.GetDamage(DamageClass.Melee).Base += this.GetAttributeValue("Damage");
+      // this.Player.GetDamage(DamageClass.Melee) += this.GetTAttributeValue("Damage");
 
-      this.Player.GetDamage(DamageClass.Ranged).Base += this.GetAttributeValue("Damage");
-      this.Player.GetDamage(DamageClass.Ranged) += this.GetTAttributeValue("Damage");
+      // this.Player.GetDamage(DamageClass.Ranged).Base += this.GetAttributeValue("Damage");
+      // this.Player.GetDamage(DamageClass.Ranged) += this.GetTAttributeValue("Damage");
 
-      this.Player.GetDamage(DamageClass.Magic).Base += this.GetAttributeValue("Damage");
-      this.Player.GetDamage(DamageClass.Magic) += this.GetTAttributeValue("Damage");
+      // this.Player.GetDamage(DamageClass.Magic).Base += this.GetAttributeValue("Damage");
+      // this.Player.GetDamage(DamageClass.Magic) += this.GetTAttributeValue("Damage");
 
       this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") + (1 + this.GetTAttributeValue("Max Minions")));
 
@@ -489,28 +495,29 @@ namespace Rebirthing
 
     public void SyncWithServer()
     {
-      if (Rebirthing.IsClient)
+      ModPacket packet = Rebirthing.Instance.GetPacket();
+      packet.Write((byte)MessageType.SYNC_STATS);
+      packet.Write(this.Player.whoAmI);
+      packet.Write(this.RebirthData.RebirthAttributes.Count);
+      foreach (var kvp in this.RebirthData.RebirthAttributes)
       {
-        if (Main.myPlayer == this.Player.whoAmI)
-        {
-          ModPacket packet = Rebirthing.Instance.GetPacket();
-          packet.Write((byte)MessageType.SYNC_STATS);
-          packet.Write(this.Player.whoAmI);
-          packet.Write(this.RebirthData.RebirthAttributes.Count);
-          List<string> attrKeys = this.RebirthData.RebirthAttributes.Keys.ToList();
-          foreach (var kvp in this.RebirthData.RebirthAttributes)
-          {
-            packet.Write(kvp.Value.Id);
-            packet.Write(kvp.Value.Level);
-          }
-          packet.Write(this.RebirthData.TranscendenceAttributes.Count);
-          foreach (var kvp in this.RebirthData.TranscendenceAttributes)
-          {
-            packet.Write(kvp.Value.Id);
-            packet.Write(kvp.Value.Level);
-          }
-          packet.Send();
-        }
+        packet.Write(kvp.Value.Id);
+        packet.Write(kvp.Value.Level);
+      }
+      packet.Write(this.RebirthData.TranscendenceAttributes.Count);
+      foreach (var kvp in this.RebirthData.TranscendenceAttributes)
+      {
+        packet.Write(kvp.Value.Id);
+        packet.Write(kvp.Value.Level);
+      }
+
+      if (Rebirthing.IsClient && Main.myPlayer == this.Player.whoAmI)
+      {
+        packet.Send();
+      }
+      else if (Rebirthing.IsServer)
+      {
+        packet.Send(-1, Player.whoAmI);
       }
     }
 
@@ -582,6 +589,11 @@ namespace Rebirthing
 
     public RebirthAttribute GetAttribute(string name)
     {
+      if (this.RebirthData == null)
+      {
+        this.RebirthData = new PlayerData();
+      }
+      
       if (this.RebirthData.RebirthAttributes.ContainsKey(name))
       {
         return this.RebirthData.RebirthAttributes[name];
@@ -598,13 +610,18 @@ namespace Rebirthing
 
     public void SetAttribute(RebirthAttribute attr)
     {
-      if (!Rebirthing.Player.RebirthData.RebirthAttributes.ContainsKey(attr.Id))
+      if (this.RebirthData == null)
       {
-        Rebirthing.Player.RebirthData.RebirthAttributes[attr.Id] = attr;
+        this.RebirthData = new PlayerData();
+      }
+
+      if (!this.RebirthData.RebirthAttributes.ContainsKey(attr.Id))
+      {
+        this.RebirthData.RebirthAttributes[attr.Id] = attr;
       }
       else
       {
-        Rebirthing.Player.RebirthData.RebirthAttributes[attr.Id].Level = attr.Level;
+        this.RebirthData.RebirthAttributes[attr.Id].Level = attr.Level;
       }
 
       this.SyncWithServer();
@@ -612,6 +629,11 @@ namespace Rebirthing
 
     public RebirthAttribute GetTAttribute(string name)
     {
+      if (this.RebirthData == null)
+      {
+        this.RebirthData = new PlayerData();
+      }
+
       if (this.RebirthData.TranscendenceAttributes.ContainsKey(name))
       {
         return this.RebirthData.TranscendenceAttributes[name];
@@ -628,13 +650,18 @@ namespace Rebirthing
 
     public void SetTAttribute(RebirthAttribute attr)
     {
-      if (!Rebirthing.Player.RebirthData.TranscendenceAttributes.ContainsKey(attr.Id))
+      if (this.RebirthData == null)
       {
-        Rebirthing.Player.RebirthData.TranscendenceAttributes[attr.Id] = attr;
+        this.RebirthData = new PlayerData();
+      }
+
+      if (!this.RebirthData.TranscendenceAttributes.ContainsKey(attr.Id))
+      {
+        this.RebirthData.TranscendenceAttributes[attr.Id] = attr;
       }
       else
       {
-        Rebirthing.Player.RebirthData.TranscendenceAttributes[attr.Id].Level = attr.Level;
+        this.RebirthData.TranscendenceAttributes[attr.Id].Level = attr.Level;
       }
 
       this.SyncWithServer();

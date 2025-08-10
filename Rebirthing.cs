@@ -78,8 +78,8 @@ namespace Rebirthing
       switch (type)
       {
         case MessageType.NPC_KILLED:
-          int npc = reader.ReadInt32();
-          AwardExp(npc);
+          int npcWhoAmI = reader.ReadInt32();
+          AwardKillExp(npcWhoAmI);
           break;
         case MessageType.MINING:
           int x = reader.ReadInt32();
@@ -146,21 +146,50 @@ namespace Rebirthing
           packet.Write(WorldIncrement);
           packet.Send();
           break;
+        case MessageType.SYNC_STATS:
+          int playerWhoAmI = reader.ReadInt32();
+          RebirthPlayer player = Main.player[playerWhoAmI].GetModPlayer<RebirthPlayer>();
+          int attributesCount = reader.ReadInt32();
+          for (int i = 0; i < attributesCount; i++)
+          {
+            string name = reader.ReadString();
+            int level = reader.ReadInt32();
+            RebirthAttribute attr = new RebirthAttribute()
+            {
+              Id = name,
+              Level = level
+            };
+            player.SetAttribute(attr);
+          }
+          int attributesTCount = reader.ReadInt32();
+          for (int i = 0; i < attributesTCount; i++)
+          {
+            string name = reader.ReadString();
+            int level = reader.ReadInt32();
+            RebirthAttribute attr = new RebirthAttribute()
+            {
+              Id = name,
+              Level = level
+            };
+            player.SetTAttribute(attr);
+          }
+          player.SyncWithServer();
+          break;
       }
     }
 
-    public void AwardExp(int whoAmI)
+    public void AwardKillExp(int npcWhoAmI)
     {
       if (IsClient)
       {
         foreach (RebirthPlayer player in Players)
         {
-          player.killNpc(whoAmI);
+          player.killNpc(npcWhoAmI);
         }
       }
       else if (IsServer)
       {
-        sendNpcKilledMessage(whoAmI);
+        sendNpcKilledMessage(npcWhoAmI);
       }
     }
 

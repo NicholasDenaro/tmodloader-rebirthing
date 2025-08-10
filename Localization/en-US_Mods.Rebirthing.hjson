@@ -244,15 +244,15 @@ Attributes: {
 		Rebirth: {
 			Description: Maximum Minion Slots (+1)
 			Value: "1"
-			Cost: "20"
-			Scale: "1.025"
+			Cost: "50"
+			Scale: "1.5"
 		}
 
 		Transcendence: {
 			Description: Maximum Minion Slots (+25%)
 			Value: "0.25"
-			Cost: "1"
-			Scale: "1.15"
+			Cost: "10"
+			Scale: "1.25"
 		}
 	}
 
