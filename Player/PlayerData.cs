@@ -84,14 +84,14 @@ namespace Rebirthing
       this.TranscendenceLevel += levels;
       this.TranscendencePoints += levels / 5;
       Rebirthing.Write("Gained " + (levels / 5) + " transcendence energy");
-      this.Level = 0;
+      this.Level = 1;
       this.RebirthPoints = (int)(this.TotalLevel * Rebirthing.SpecsRate);
       this.RebirthAttributes.Clear();
     }
 
     public void RespecTranscendance()
     {
-      this.TranscendencePoints = this.TranscendenceLevel / 10;
+      this.TranscendencePoints = this.TranscendenceLevel / 5;
       Rebirthing.Write("Reclaimed " + this.TranscendencePoints + " transcendence energy");
       this.TranscendenceAttributes.Clear();
     }

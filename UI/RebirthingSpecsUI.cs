@@ -283,7 +283,7 @@ namespace Rebirthing
 
       this.descriptionList.Add(new UIHorizontalSeparator()
       {
-        Width = {Percent = 0.9f}
+        Width = {Percent = 1.0f}
       });
 
       int cost = this.GetAttributeCost(text);

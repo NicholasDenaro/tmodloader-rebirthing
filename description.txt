@@ -42,5 +42,5 @@ You can configure:
 - the exp multiplier
 - the coin multiplier
 - the rebirth energy multiplier
-- TODO: the drop chance multiplier
-- TODO: the drop amount multiplier
+- the drop chance multiplier
+- the drop amount multiplier

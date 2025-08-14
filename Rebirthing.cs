@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -29,7 +28,7 @@ namespace Rebirthing
 
     public static RebirthPlayer Player;
 
-    public static List<RebirthPlayer> Players { get; } = new List<RebirthPlayer>();
+    public List<RebirthPlayer> Players { get; } = new List<RebirthPlayer>();
 
     public override void Load()
     {
@@ -103,6 +102,10 @@ namespace Rebirthing
         case MessageType.SYNC_STATS:
           int playerWhoAmI = reader.ReadInt32();
           RebirthPlayer player = Main.player[playerWhoAmI].GetModPlayer<RebirthPlayer>();
+          if (!this.Players.Contains(player))
+          {
+            this.Players.Add(player);
+          }
           int attributesCount = reader.ReadInt32();
           for (int i = 0; i < attributesCount; i++)
           {
@@ -128,6 +131,9 @@ namespace Rebirthing
             player.SetTAttribute(attr);
           }
           break;
+        case MessageType.INCREMENT_WORLD:
+          this.IncrementWorld(false);
+          break;
       }
     }
 
@@ -149,6 +155,10 @@ namespace Rebirthing
         case MessageType.SYNC_STATS:
           int playerWhoAmI = reader.ReadInt32();
           RebirthPlayer player = Main.player[playerWhoAmI].GetModPlayer<RebirthPlayer>();
+          if (!this.Players.Contains(player))
+          {
+            this.Players.Add(player);
+          }
           int attributesCount = reader.ReadInt32();
           for (int i = 0; i < attributesCount; i++)
           {
@@ -174,6 +184,9 @@ namespace Rebirthing
             player.SetTAttribute(attr);
           }
           player.SyncWithServer();
+          break;
+        case MessageType.INCREMENT_WORLD:
+          this.IncrementWorld(false);
           break;
       }
     }
@@ -235,8 +248,23 @@ namespace Rebirthing
       Player.AwardExp(exp);
     }
 
-    public void IncrementWorld()
+    public void Reset()
     {
+      Main.GameMode = GameModeID.Normal;
+      this.WorldIncrement = 0;
+      Main.hardMode = false;
+    }
+
+    public void IncrementWorld(bool sendMessage)
+    {
+      if (!IsHost && sendMessage)
+      {
+        ModPacket packet = GetPacket();
+        packet.Write((byte)MessageType.INCREMENT_WORLD);
+        packet.Send();
+        return;
+      }
+
       NPC.downedAncientCultist = false;
       NPC.downedBoss1 = false;
       NPC.downedBoss2 = false;
@@ -269,13 +297,17 @@ namespace Rebirthing
       NPC.downedTowerStardust = false;
       NPC.downedTowerVortex = false;
 
-      if (Main.GameMode == GameModeID.Normal)
+      Main.hardMode = false;
+
+      if (Main.GameModeInfo.Id == GameModeID.Normal)
       {
         Main.GameMode = GameModeID.Expert;
+        WorldIncrement = 0;
       }
-      else if (Main.GameMode == GameModeID.Expert)
+      else if (Main.GameModeInfo.Id == GameModeID.Expert)
       {
         Main.GameMode = GameModeID.Master;
+        WorldIncrement = 0;
       }
       else
       {
@@ -283,7 +315,17 @@ namespace Rebirthing
         SetDifficulty(Main.GameMode, WorldIncrement);
       }
 
-      Rebirthing.Write("The world shifts and grows stronger", 50, 50, 50);
+      if (IsHost)
+      {
+        Rebirthing.Write("The world shifts and grows stronger", 50, 50, 50);
+      }
+
+      if (IsServer)
+      {
+        ModPacket packet = GetPacket();
+        packet.Write((byte)MessageType.INCREMENT_WORLD);
+        packet.Send();
+      }
     }
 
     private void SetDifficulty(int gameMode, int increment)
@@ -330,18 +372,6 @@ namespace Rebirthing
     }
   }
 
-  public class IncrementWorldCommand : ModCommand
-  {
-    public override string Command => "increment";
-
-    public override CommandType Type => CommandType.World;
-
-    public override void Action(CommandCaller caller, string input, string[] args)
-    {
-      Rebirthing.Instance.IncrementWorld();
-    }
-  }
-
   public class ShowIncrementWorldCommand : ModCommand
   {
     public override string Command => "world";
@@ -350,7 +380,32 @@ namespace Rebirthing
 
     public override void Action(CommandCaller caller, string input, string[] args)
     {
+      Rebirthing.Write("World game mode: " + Main.GameModeInfo);
       Rebirthing.Write("World Increment: " + Rebirthing.Instance.WorldIncrement);
+    }
+  }
+
+  public class ResetCommand : ModCommand
+  {
+    public override string Command => "reset";
+
+    public override CommandType Type => CommandType.World;
+
+    public override void Action(CommandCaller caller, string input, string[] args)
+    {
+      Rebirthing.Instance.Reset();
+    }
+  }
+
+  public class IncrementCommand : ModCommand
+  {
+    public override string Command => "increment";
+
+    public override CommandType Type => CommandType.World;
+
+    public override void Action(CommandCaller caller, string input, string[] args)
+    {
+      Rebirthing.Instance.IncrementWorld(true);
     }
   }
 
@@ -395,5 +450,5 @@ namespace Rebirthing
     }
   }
 
-  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE, DIFFICULTY, GET_DIFFICULTY, SYNC_STATS }
+  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE, DIFFICULTY, GET_DIFFICULTY, SYNC_STATS, INCREMENT_WORLD }
 }

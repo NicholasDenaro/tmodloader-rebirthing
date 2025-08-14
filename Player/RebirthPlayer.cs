@@ -337,7 +337,7 @@ namespace Rebirthing
     public override void OnEnterWorld()
     {
       Console.WriteLine("Enter World Loading player " + this.Player?.name);
-      Rebirthing.Players.Add(this);
+      Rebirthing.Instance.Players.Add(this);
       Rebirthing.Player = this;
       if (this.RebirthData == null)
       {
@@ -346,6 +346,8 @@ namespace Rebirthing
       Main.blockInput = false;
 
       Rebirthing.Instance.GetDifficulty();
+
+      this.SyncWithServer();
     }
 
     public override void PostUpdateMiscEffects()
@@ -387,7 +389,7 @@ namespace Rebirthing
       // this.Player.GetDamage(DamageClass.Magic).Base += this.GetAttributeValue("Damage");
       // this.Player.GetDamage(DamageClass.Magic) += this.GetTAttributeValue("Damage");
 
-      this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") + (1 + this.GetTAttributeValue("Max Minions")));
+      this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") * (1 + this.GetTAttributeValue("Max Minions")));
 
       this.Player.pickSpeed = (this.Player.pickSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
       this.Player.tileSpeed = (this.Player.tileSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
@@ -403,24 +405,11 @@ namespace Rebirthing
       mana = StatModifier.Default;
       if (this.RebirthData != null)
       {
-        health.Base = this.GetAttributeValue("Health") * (1 + this.GetTAttributeValue("Health"));
-        mana.Base = this.GetAttributeValue("Mana") * (1 + this.GetTAttributeValue("Mana"));
+        health.Base = this.GetAttributeValue("Health");
+        health *= 1 + this.GetTAttributeValue("Health");
+        mana.Base = this.GetAttributeValue("Mana");
+        mana *= 1 + this.GetTAttributeValue("Mana");
       }
-    }
-
-    public override void Load()
-    {
-      if (Rebirthing.IsServer)
-      {
-        Console.WriteLine("Server Loading player " + this.Player?.name);
-        Rebirthing.Players.Add(this);
-      }
-    }
-
-    public override void Unload()
-    {
-      Console.WriteLine("Unloading player " + this.Player?.name);
-      Rebirthing.Players.Remove(this);
     }
 
     public override void SaveData(TagCompound tag)
@@ -435,66 +424,13 @@ namespace Rebirthing
       Console.WriteLine("LOG: Loaded player data");
     }
 
-    // public override void SendClientChanges(ModPlayer clientPlayer)
-    // {
-    //   RebirthPlayer clone = clientPlayer as RebirthPlayer;
-
-    //   if (!IsSynced(clone))
-    //   {
-    //     this.SyncWithServer();
-    //   }
-    // }
-
-    // public override void CopyClientState(ModPlayer targetCopy)
-    // {
-    //   RebirthPlayer clone = targetCopy as RebirthPlayer;
-
-    //   clone.RebirthData.RebirthAttributes.Clear();
-    //   foreach (var kvp in this.RebirthData.RebirthAttributes)
-    //   {
-    //     clone.SetAttribute(this.GetAttribute(kvp.Key).Clone());
-    //   }
-
-    //   clone.RebirthData.TranscendenceAttributes.Clear();
-    //   foreach (var kvp in this.RebirthData.TranscendenceAttributes)
-    //   {
-    //     clone.SetTAttribute(this.GetTAttribute(kvp.Key).Clone());
-    //   }
-    // }
-
-    // private bool IsSynced(RebirthPlayer clone)
-    // {
-    //   if (this.RebirthData.RebirthAttributes.Count != clone.RebirthData.RebirthAttributes.Count)
-    //   {
-    //     return false;
-    //   }
-
-    //   if (this.RebirthData.TranscendenceAttributes.Count != clone.RebirthData.TranscendenceAttributes.Count)
-    //   {
-    //     return false;
-    //   }
-
-    //   foreach (var kvp in this.RebirthData.RebirthAttributes)
-    //   {
-    //     if (clone.RebirthData.RebirthAttributes[kvp.Key].Level != kvp.Value.Level)
-    //     {
-    //       return false;
-    //     }
-    //   }
-
-    //   foreach (var kvp in this.RebirthData.TranscendenceAttributes)
-    //   {
-    //     if (clone.RebirthData.TranscendenceAttributes[kvp.Key].Level != kvp.Value.Level)
-    //     {
-    //       return false;
-    //     }
-    //   }
-
-    //   return true;
-    // }
-
     public void SyncWithServer()
     {
+      if (Rebirthing.IsSinglePlayer)
+      {
+        return;
+      }
+
       ModPacket packet = Rebirthing.Instance.GetPacket();
       packet.Write((byte)MessageType.SYNC_STATS);
       packet.Write(this.Player.whoAmI);
