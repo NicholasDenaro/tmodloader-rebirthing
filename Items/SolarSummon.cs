@@ -1,17 +1,17 @@
-using System.Numerics;
+using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace Rebirthing.Items
 {
-  public class CultistSummon : ModItem
+  public class SolarSummon : ModItem
   {
     public override void SetStaticDefaults()
     {
       Item.ResearchUnlockCount = 1;
       ItemID.Sets.SortingPriorityBossSpawns[Type] = 12;
-      NPCID.Sets.MPAllowedEnemies[NPCID.CultistBoss] = true;
     }
     public override void SetDefaults()
     {
@@ -25,12 +25,15 @@ namespace Rebirthing.Items
 
     public override bool CanUseItem(Player player)
     {
-      return !NPC.TowerActiveNebula && !NPC.TowerActiveSolar && !NPC.TowerActiveStardust && !NPC.TowerActiveVortex;
+      return !NPC.TowerActiveSolar;
     }
 
     public override bool? UseItem(Player player)
     {
-      NPC.SpawnBoss((int)player.position.X, (int)player.position.Y - 100, NPC.plantBoss, player.whoAmI);
+      NPC.NewNPC(player.GetSource_ItemUse(Item), (int)player.position.X, (int)player.position.Y - 100, NPCID.LunarTowerSolar, 0);
+
+      NPC.ShieldStrengthTowerSolar = NPC.LunarShieldPowerNormal;
+
       return true;
     }
 

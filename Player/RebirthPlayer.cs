@@ -354,15 +354,8 @@ namespace Rebirthing
     {
       this.Player.moveSpeed = this.Player.moveSpeed * (1 + this.GetAttributeValue("Speed")) * (1 + this.GetTAttributeValue("Speed"));
 
-      // this.Player.GetAttackSpeed(DamageClass.Default) = this.Player.GetAttackSpeed(DamageClass.Default) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.Melee) = this.Player.GetAttackSpeed(DamageClass.Melee) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.Ranged) = this.Player.GetAttackSpeed(DamageClass.Ranged) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.Magic) = this.Player.GetAttackSpeed(DamageClass.Magic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.Summon) = this.Player.GetAttackSpeed(DamageClass.Summon) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) = this.Player.GetAttackSpeed(DamageClass.SummonMeleeSpeed) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.MagicSummonHybrid) = this.Player.GetAttackSpeed(DamageClass.MagicSummonHybrid) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      // this.Player.GetAttackSpeed(DamageClass.Throwing) = this.Player.GetAttackSpeed(DamageClass.Throwing) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
-      this.Player.GetAttackSpeed(DamageClass.Generic) = this.Player.GetAttackSpeed(DamageClass.Generic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      // this.Player.GetAttackSpeed(DamageClass.Generic) = this.Player.GetAttackSpeed(DamageClass.Generic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
+      this.Player.GetAttackSpeed(DamageClass.Generic) = (this.Player.GetAttackSpeed(DamageClass.Generic) + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
 
       this.Player.statDefense = (this.Player.statDefense + (int)this.GetAttributeValue("Defense")) * (1 + this.GetTAttributeValue("Defense"));
 
@@ -373,21 +366,9 @@ namespace Rebirthing
       this.Player.GetArmorPenetration(DamageClass.Generic) = (this.Player.GetArmorPenetration(DamageClass.Generic) + this.GetAttributeValue("Armor Pen")) * (1 + this.GetTAttributeValue("Armor Pen"));
 
       this.Player.GetCritChance(DamageClass.Generic) = (this.Player.GetCritChance(DamageClass.Generic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
-      // this.Player.GetCritChance(DamageClass.Melee) = (this.Player.GetCritChance(DamageClass.Melee) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
-      // this.Player.GetCritChance(DamageClass.Magic) = (this.Player.GetCritChance(DamageClass.Magic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
-      // this.Player.GetCritChance(DamageClass.Ranged) = (this.Player.GetCritChance(DamageClass.Ranged) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
 
       this.Player.GetDamage(DamageClass.Generic).Base += this.GetAttributeValue("Damage");
       this.Player.GetDamage(DamageClass.Generic) += this.GetTAttributeValue("Damage");
-
-      // this.Player.GetDamage(DamageClass.Melee).Base += this.GetAttributeValue("Damage");
-      // this.Player.GetDamage(DamageClass.Melee) += this.GetTAttributeValue("Damage");
-
-      // this.Player.GetDamage(DamageClass.Ranged).Base += this.GetAttributeValue("Damage");
-      // this.Player.GetDamage(DamageClass.Ranged) += this.GetTAttributeValue("Damage");
-
-      // this.Player.GetDamage(DamageClass.Magic).Base += this.GetAttributeValue("Damage");
-      // this.Player.GetDamage(DamageClass.Magic) += this.GetTAttributeValue("Damage");
 
       this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") * (1 + this.GetTAttributeValue("Max Minions")));
 
@@ -481,8 +462,6 @@ namespace Rebirthing
 
     public void Rebirth()
     {
-      this.RebirthData.Rebirth();
-
       this.rebirthTimer = 5 * 60;
       this.rebirthing = true;
       Main.blockInput = true;
@@ -490,8 +469,6 @@ namespace Rebirthing
 
     public void Transcend()
     {
-      this.RebirthData.Transend();
-
       this.rebirthTimer = 5 * 60;
       this.rebirthing = true;
       Main.blockInput = true;
@@ -501,12 +478,20 @@ namespace Rebirthing
 
     public void EndRebirth()
     {
+      if (this.rebirthing)
+      {
+        this.RebirthData.Rebirth();
+      }
       this.rebirthing = false;
       Main.blockInput = false;
     }
 
     public void EndTranscend()
     {
+      if (this.transcending)
+      {
+        this.RebirthData.Transend();
+      }
       this.transcending = false;
       Main.blockInput = false;
     }

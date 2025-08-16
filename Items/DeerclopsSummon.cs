@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Numerics;
 using Terraria;
 using Terraria.ID;
@@ -5,13 +6,13 @@ using Terraria.ModLoader;
 
 namespace Rebirthing.Items
 {
-  public class CultistSummon : ModItem
+  public class DeerclopsSummon : ModItem
   {
     public override void SetStaticDefaults()
     {
       Item.ResearchUnlockCount = 1;
       ItemID.Sets.SortingPriorityBossSpawns[Type] = 12;
-      NPCID.Sets.MPAllowedEnemies[NPCID.CultistBoss] = true;
+      NPCID.Sets.MPAllowedEnemies[NPCID.Deerclops] = true;
     }
     public override void SetDefaults()
     {
@@ -25,12 +26,12 @@ namespace Rebirthing.Items
 
     public override bool CanUseItem(Player player)
     {
-      return !NPC.TowerActiveNebula && !NPC.TowerActiveSolar && !NPC.TowerActiveStardust && !NPC.TowerActiveVortex;
+      return !Main.npc.Any(npc => npc.type == NPC.deerclopsBoss);
     }
 
     public override bool? UseItem(Player player)
     {
-      NPC.SpawnBoss((int)player.position.X, (int)player.position.Y - 100, NPC.plantBoss, player.whoAmI);
+      NPC.SpawnBoss((int)player.position.X - 100, (int)player.position.Y, NPCID.Deerclops, player.whoAmI);
       return true;
     }
 

@@ -58,7 +58,8 @@ namespace Rebirthing.Npcs
     {
       if (firstButton)
       {
-        if (Rebirthing.Player.RebirthData.Level >= 25)
+        int requiredLevel = 25 + Rebirthing.Player.RebirthData.TotalLevel / 10;
+        if (Rebirthing.Player.RebirthData.Level >= requiredLevel)
         {
           Rebirthing.Player.Rebirth();
           Main.npcChatText = String.Empty;
@@ -70,7 +71,7 @@ namespace Rebirthing.Npcs
         }
         else
         {
-          Main.npcChatText = "Talk to me again when you are at least level 25";
+          Main.npcChatText = "Talk to me again when you are at least level " + requiredLevel;
         }
 
       }

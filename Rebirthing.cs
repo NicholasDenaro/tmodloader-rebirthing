@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -29,6 +30,8 @@ namespace Rebirthing
     public static RebirthPlayer Player;
 
     public List<RebirthPlayer> Players { get; } = new List<RebirthPlayer>();
+
+    public static Dictionary<string, bool> BossKilled = new Dictionary<string, bool>();
 
     public override void Load()
     {
@@ -414,6 +417,7 @@ namespace Rebirthing
     public override void SaveWorldData(TagCompound tag)
     {
       tag.Set("WorldIncrement", Rebirthing.Instance.WorldIncrement);
+      tag.Set("BossKilled", JsonSerializer.Serialize(Rebirthing.BossKilled));
     }
 
     public override void LoadWorldData(TagCompound tag)
@@ -446,7 +450,14 @@ namespace Rebirthing
         Rebirthing.Instance.WorldIncrement = 0;
       }
 
-
+      if (tag.ContainsKey("BossKilled"))
+      {
+        Rebirthing.BossKilled = JsonSerializer.Deserialize<Dictionary<string, bool>>(tag.Get<string>("BossKilled"));
+      }
+      else
+      {
+        Rebirthing.BossKilled = new Dictionary<string, bool>();
+      }
     }
   }
 

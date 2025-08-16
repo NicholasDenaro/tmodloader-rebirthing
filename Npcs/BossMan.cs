@@ -1,13 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Rebirthing.Items;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 using Terraria.ModLoader.IO;
 
 namespace Rebirthing.Npcs
@@ -15,7 +12,6 @@ namespace Rebirthing.Npcs
   [AutoloadHead]
   public class BossMan : ModNPC
   {
-    private static Dictionary<string, bool> bossKilled = new Dictionary<string, bool>();
 
     private string shopName = "Boss Man Shop";
 
@@ -49,16 +45,6 @@ namespace Rebirthing.Npcs
       AnimationType = NPCID.Guide; // Sets the animation style to follow the animation of your chosen vanilla Town NPC.
     }
 
-    public override void LoadData(TagCompound tag)
-    {
-      BossMan.bossKilled = JsonSerializer.Deserialize<Dictionary<string, bool>>(tag.Get<string>("bosses")) ?? new Dictionary<string, bool>();
-    }
-
-    public override void SaveData(TagCompound tag)
-    {
-      tag.Set("bosses", JsonSerializer.Serialize(BossMan.bossKilled), true);
-    }
-
     public override string GetChat()
     {
       return "I provide items to spawn bosses.";
@@ -68,7 +54,7 @@ namespace Rebirthing.Npcs
     {
       this.UpdatingDefeatedBosses();
 
-      return BossMan.bossKilled.Keys.Any(key => BossMan.bossKilled[key]);
+      return Rebirthing.BossKilled.Keys.Any(key => Rebirthing.BossKilled[key]);
     }
 
     public override bool PreAI()
@@ -80,82 +66,107 @@ namespace Rebirthing.Npcs
 
     private void UpdatingDefeatedBosses()
     {
-      this.AddOrUpdateBoss("downedAncientCultist", NPC.downedAncientCultist);
-      this.AddOrUpdateBoss("downedBoss1", NPC.downedBoss1);
-      this.AddOrUpdateBoss("downedBoss2", NPC.downedBoss2);
-      this.AddOrUpdateBoss("downedBoss3", NPC.downedBoss3);
-      this.AddOrUpdateBoss("downedChristmasIceQueen", NPC.downedChristmasIceQueen);
-      this.AddOrUpdateBoss("downedChristmasSantank", NPC.downedChristmasSantank);
-      this.AddOrUpdateBoss("downedChristmasTree", NPC.downedChristmasTree);
-      this.AddOrUpdateBoss("downedDeerclops", NPC.downedDeerclops);
-      this.AddOrUpdateBoss("downedEmpressOfLight", NPC.downedEmpressOfLight);
-      this.AddOrUpdateBoss("downedFishron", NPC.downedFishron);
-      this.AddOrUpdateBoss("downedFrost", NPC.downedFrost);
-      this.AddOrUpdateBoss("downedGoblins", NPC.downedGoblins);
-      this.AddOrUpdateBoss("downedGolemBoss", NPC.downedGolemBoss);
-      this.AddOrUpdateBoss("downedHalloweenKing", NPC.downedHalloweenKing);
-      this.AddOrUpdateBoss("downedMartians", NPC.downedMartians);
-      this.AddOrUpdateBoss("downedMechBoss1", NPC.downedMechBoss1);
-      this.AddOrUpdateBoss("downedMechBoss2", NPC.downedMechBoss2);
-      this.AddOrUpdateBoss("downedMechBoss3", NPC.downedMechBoss3);
-      this.AddOrUpdateBoss("downedMoonlord", NPC.downedMoonlord);
-      this.AddOrUpdateBoss("downedPirates", NPC.downedPirates);
-      this.AddOrUpdateBoss("downedPlantBoss", NPC.downedPlantBoss);
-      this.AddOrUpdateBoss("downedQueenBee", NPC.downedQueenBee);
-      this.AddOrUpdateBoss("downedQueenSlime", NPC.downedQueenSlime);
-      this.AddOrUpdateBoss("downedSlimeKing", NPC.downedSlimeKing);
+      this.AddOrUpdateBoss("downedAncientCultist", NPC.downedAncientCultist); // done
+      this.AddOrUpdateBoss("downedBoss1", NPC.downedBoss1); // done
+      this.AddOrUpdateBoss("downedBoss2", NPC.downedBoss2); // done
+      this.AddOrUpdateBoss("downedBoss3", NPC.downedBoss3); // done
+      this.AddOrUpdateBoss("downedChristmasIceQueen", NPC.downedChristmasIceQueen); // skip
+      this.AddOrUpdateBoss("downedChristmasSantank", NPC.downedChristmasSantank); // skip
+      this.AddOrUpdateBoss("downedChristmasTree", NPC.downedChristmasTree); // skip
+      this.AddOrUpdateBoss("downedDeerclops", NPC.downedDeerclops); // done
+      this.AddOrUpdateBoss("downedEmpressOfLight", NPC.downedEmpressOfLight); // done
+      this.AddOrUpdateBoss("downedFishron", NPC.downedFishron); // done
+      this.AddOrUpdateBoss("downedFrost", NPC.downedFrost); // done
+      this.AddOrUpdateBoss("downedGoblins", NPC.downedGoblins); // done
+      this.AddOrUpdateBoss("downedGolemBoss", NPC.downedGolemBoss); // done
+      this.AddOrUpdateBoss("downedHalloweenKing", NPC.downedHalloweenKing); // done
+      this.AddOrUpdateBoss("downedHalloweenTree", NPC.downedHalloweenTree); // skip
+      this.AddOrUpdateBoss("downedMartians", NPC.downedMartians); // done
+      this.AddOrUpdateBoss("downedMechBoss1", NPC.downedMechBoss1); // done
+      this.AddOrUpdateBoss("downedMechBoss2", NPC.downedMechBoss2); // done
+      this.AddOrUpdateBoss("downedMechBoss3", NPC.downedMechBoss3); // done
+      this.AddOrUpdateBoss("downedMoonlord", NPC.downedMoonlord); // done
+      this.AddOrUpdateBoss("downedPirates", NPC.downedPirates); // done
+      this.AddOrUpdateBoss("downedPlantBoss", NPC.downedPlantBoss); // done
+      this.AddOrUpdateBoss("downedQueenBee", NPC.downedQueenBee); // done
+      this.AddOrUpdateBoss("downedQueenSlime", NPC.downedQueenSlime); // done
+      this.AddOrUpdateBoss("downedSlimeKing", NPC.downedSlimeKing); // done
       this.AddOrUpdateBoss("downedTowerNebula", NPC.downedTowerNebula);
       this.AddOrUpdateBoss("downedTowerSolar", NPC.downedTowerSolar);
       this.AddOrUpdateBoss("downedTowerStardust", NPC.downedTowerStardust);
       this.AddOrUpdateBoss("downedTowerVortex", NPC.downedTowerVortex);
-      this.AddOrUpdateBoss("hardMode", Main.hardMode);
+      this.AddOrUpdateBoss("hardMode", Main.hardMode); // done
+      this.AddOrUpdateBoss("bloodMoon", Main.bloodMoon); // done
+      this.AddOrUpdateBoss("solarEclipse", Main.eclipse); // done
     }
 
     public override void AddShops()
     {
       NPCShop shop = new NPCShop(NPC.type, shopName);
 
-      shop.Add(new NPCShop.Entry(ItemID.SuspiciousLookingEye, new Condition("downedBoss1", () => BossMan.bossKilled.GetValueOrDefault("downedBoss1", false))));
+      shop.Add(new NPCShop.Entry(ItemID.SuspiciousLookingEye, new Condition("downedBoss1", () => Rebirthing.BossKilled.GetValueOrDefault("downedBoss1", false))));
 
       if (WorldGen.crimson)
       {
-        shop.Add(new NPCShop.Entry(ItemID.BloodySpine, new Condition("downedBoss2", () => BossMan.bossKilled.GetValueOrDefault("downedBoss2", false))));
+        shop.Add(new NPCShop.Entry(ItemID.BloodySpine, new Condition("downedBoss2", () => Rebirthing.BossKilled.GetValueOrDefault("downedBoss2", false))));
       }
       else
       {
-        shop.Add(new NPCShop.Entry(ItemID.WormFood, new Condition("downedBoss2", () => BossMan.bossKilled.GetValueOrDefault("downedBoss2", false))));
+        shop.Add(new NPCShop.Entry(ItemID.WormFood, new Condition("downedBoss2", () => Rebirthing.BossKilled.GetValueOrDefault("downedBoss2", false))));
       }
 
-      shop.Add<SkeletronSummon>(new Condition("downedBoss3", () => BossMan.bossKilled.GetValueOrDefault("downedBoss3", false)));
+      shop.Add<SkeletronSummon>(new Condition("downedBoss3", () => Rebirthing.BossKilled.GetValueOrDefault("downedBoss3", false)));
 
-      shop.Add(new NPCShop.Entry(ItemID.Abeemination, new Condition("downedQueenBee", () => BossMan.bossKilled.GetValueOrDefault("downedQueenBee", false))));
-      shop.Add(new NPCShop.Entry(ItemID.SlimeCrown, new Condition("downedSlimeKing", () => BossMan.bossKilled.GetValueOrDefault("downedSlimeKing", false))));
+      // Pre Hardmode Optionals
+      shop.Add<DeerclopsSummon>(new Condition("downedDeerclops", () => Rebirthing.BossKilled.GetValueOrDefault("downedDeerclops", false)));
+      shop.Add(new NPCShop.Entry(ItemID.Abeemination, new Condition("downedQueenBee", () => Rebirthing.BossKilled.GetValueOrDefault("downedQueenBee", false))));
+      shop.Add(new NPCShop.Entry(ItemID.SlimeCrown, new Condition("downedSlimeKing", () => Rebirthing.BossKilled.GetValueOrDefault("downedSlimeKing", false))));
 
-      shop.Add<WOFSummon>(new Condition("hardMode", () => BossMan.bossKilled.GetValueOrDefault("hardMode", false)));
+      // Hardmode+
+      shop.Add<WOFSummon>(new Condition("hardMode", () => Rebirthing.BossKilled.GetValueOrDefault("hardMode", false)));
+      shop.Add(new NPCShop.Entry(ItemID.MechanicalWorm, new Condition("downedMechBoss1", () => Rebirthing.BossKilled.GetValueOrDefault("downedMechBoss1", false))));
+      shop.Add(new NPCShop.Entry(ItemID.MechanicalEye, new Condition("downedMechBoss2", () => Rebirthing.BossKilled.GetValueOrDefault("downedMechBoss2", false))));
+      shop.Add(new NPCShop.Entry(ItemID.MechanicalSkull, new Condition("downedMechBoss3", () => Rebirthing.BossKilled.GetValueOrDefault("downedMechBoss3", false))));
 
-      shop.Add(new NPCShop.Entry(ItemID.MechanicalWorm, new Condition("downedMechBoss1", () => BossMan.bossKilled.GetValueOrDefault("downedMechBoss1", false))));
-      shop.Add(new NPCShop.Entry(ItemID.MechanicalEye, new Condition("downedMechBoss2", () => BossMan.bossKilled.GetValueOrDefault("downedMechBoss2", false))));
-      shop.Add(new NPCShop.Entry(ItemID.MechanicalSkull, new Condition("downedMechBoss3", () => BossMan.bossKilled.GetValueOrDefault("downedMechBoss3", false))));
+      // Plantera+
+      shop.Add<PlanteraSummon>(new Condition("downedPlantBoss", () => Rebirthing.BossKilled.GetValueOrDefault("downedPlantBoss", false)));
+      shop.Add(new NPCShop.Entry(ItemID.LihzahrdPowerCell, new Condition("downedGolemBoss", () => Rebirthing.BossKilled.GetValueOrDefault("downedGolemBoss", false))));
+      shop.Add<CultistSummon>(new Condition("downedAncientCultist", () => Rebirthing.BossKilled.GetValueOrDefault("downedAncientCultist", false)));
 
-      shop.Add<PlanteraSummon>(new Condition("downedPlantBoss", () => BossMan.bossKilled.GetValueOrDefault("downedPlantBoss", false)));
+      shop.Add<NebulaSummon>(new Condition("downedTowerNebula", () => Rebirthing.BossKilled.GetValueOrDefault("downedTowerNebula", false)));
+      shop.Add<SolarSummon>(new Condition("downedTowerSolar", () => Rebirthing.BossKilled.GetValueOrDefault("downedTowerSolar", false)));
+      shop.Add<StardustSummon>(new Condition("downedTowerStardust", () => Rebirthing.BossKilled.GetValueOrDefault("downedTowerStardust", false)));
+      shop.Add<VortexSummon>(new Condition("downedTowerVortex", () => Rebirthing.BossKilled.GetValueOrDefault("downedTowerVortex", false)));
 
-      shop.Add(new NPCShop.Entry(ItemID.LihzahrdPowerCell, new Condition("downedGolemBoss", () => BossMan.bossKilled.GetValueOrDefault("downedGolemBoss", false))));
 
-      shop.Add<CultistSummon>(new Condition("downedAncientCultist", () => BossMan.bossKilled.GetValueOrDefault("downedAncientCultist", false)));
+      shop.Add(new NPCShop.Entry(ItemID.CelestialSigil, new Condition("downedMoonlord", () => Rebirthing.BossKilled.GetValueOrDefault("downedMoonlord", false))));
 
-      shop.Add(new NPCShop.Entry(ItemID.CelestialSigil, new Condition("downedMoonlord", () => BossMan.bossKilled.GetValueOrDefault("downedMoonlord", false))));
+      // Hardmode Optionals
+      shop.Add(new NPCShop.Entry(ItemID.QueenSlimeCrystal, new Condition("downedQueenSlime", () => Rebirthing.BossKilled.GetValueOrDefault("downedQueenSlime", false))));
+      shop.Add(new NPCShop.Entry(ItemID.EmpressButterfly, new Condition("downedEmpressOfLight", () => Rebirthing.BossKilled.GetValueOrDefault("downedEmpressOfLight", false))));
+      shop.Add(new NPCShop.Entry(ItemID.TruffleWorm, new Condition("downedFishron", () => Rebirthing.BossKilled.GetValueOrDefault("downedFishron", false))));
+
+      // Events
+      shop.Add(new NPCShop.Entry(ItemID.BloodMoonStarter, new Condition("bloodMoon", () => Rebirthing.BossKilled.GetValueOrDefault("bloodMoon", false))));
+      shop.Add(new NPCShop.Entry(ItemID.GoblinBattleStandard, new Condition("downedGoblins", () => Rebirthing.BossKilled.GetValueOrDefault("downedGoblins", false))));
+
+      shop.Add(new NPCShop.Entry(ItemID.SolarTablet, new Condition("solarEclipse", () => Rebirthing.BossKilled.GetValueOrDefault("solarEclipse", false))));
+      shop.Add(new NPCShop.Entry(ItemID.PirateMap, new Condition("downedPirates", () => Rebirthing.BossKilled.GetValueOrDefault("downedPirates", false))));
+      shop.Add<MartianSummon>(new Condition("downedMartians", () => Rebirthing.BossKilled.GetValueOrDefault("downedMartians", false)));
+      shop.Add(new NPCShop.Entry(ItemID.SnowGlobe, new Condition("downedFrost", () => Rebirthing.BossKilled.GetValueOrDefault("downedFrost", false) || Rebirthing.BossKilled.GetValueOrDefault("downedMoonlord", false)))); // Since it's time gated, we give an option to unlock it after moonlord
+      shop.Add(new NPCShop.Entry(ItemID.PumpkinMoonMedallion, new Condition("downedHalloweenKing", () => Rebirthing.BossKilled.GetValueOrDefault("downedHalloweenKing", false))));
 
       shop.Register();
     }
 
     private void AddOrUpdateBoss(string name, bool killed)
     {
-      if (!BossMan.bossKilled.ContainsKey(name))
+      if (!Rebirthing.BossKilled.ContainsKey(name))
       {
-        BossMan.bossKilled.Add(name, killed);
+        Rebirthing.BossKilled.Add(name, killed);
       }
 
-      BossMan.bossKilled[name] = BossMan.bossKilled[name] || killed;
+      Rebirthing.BossKilled[name] = Rebirthing.BossKilled[name] || killed;
     }
 
     public override void SetChatButtons(ref string button, ref string button2)

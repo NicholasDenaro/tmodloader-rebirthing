@@ -21,6 +21,7 @@ namespace Rebirthing.Items
       Item.useAnimation = 30;
       Item.useTime = 30;
       Item.useStyle = ItemUseStyleID.HoldUp;
+      Item.maxStack = 20;
     }
 
     public override bool CanUseItem(Player player)
@@ -30,7 +31,9 @@ namespace Rebirthing.Items
 
     public override bool? UseItem(Player player)
     {
-      NPC.SpawnSkeletron(player.whoAmI);
+      // NPC.SpawnSkeletron(player.whoAmI); // This kills the clothier
+
+      NPC.SpawnBoss((int)player.position.X, (int)player.position.Y - 200, NPCID.SkeletronHead, player.whoAmI);
       return true;
     }
 

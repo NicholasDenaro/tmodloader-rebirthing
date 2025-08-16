@@ -38,6 +38,10 @@ Master+ -> Master++ (etc)
 Each level of Master+ multiplies the stats of enemies by 2.
 This means that Master++ will give x4 stats, and Master+++ will give x8 stats.
 
+[h3] The Boss Man [/h3]
+The Boss Man is unlocked as soon as you kill the first boss or have an event such as a blood moon or defeating a goblin army.
+You can purchase boss summoning items here as well as some custom items for bosses which don't usually have a summon item.
+
 [h2]Configuartion[/h2]
 You can configure:
 [list]

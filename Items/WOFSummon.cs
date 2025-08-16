@@ -21,6 +21,7 @@ namespace Rebirthing.Items
       Item.useAnimation = 30;
       Item.useTime = 30;
       Item.useStyle = ItemUseStyleID.HoldUp;
+      Item.maxStack = 20;
     }
 
     public override bool CanUseItem(Player player)

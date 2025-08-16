@@ -373,4 +373,34 @@ Items: {
 		DisplayName: W O F Summon
 		Tooltip: ""
 	}
+
+	VortexSummon: {
+		Tooltip: ""
+		DisplayName: Vortex Summon
+	}
+
+	StardustSummon: {
+		Tooltip: ""
+		DisplayName: Stardust Summon
+	}
+
+	SolarSummon: {
+		Tooltip: ""
+		DisplayName: Solar Summon
+	}
+
+	NebulaSummon: {
+		Tooltip: ""
+		DisplayName: Nebula Summon
+	}
+
+	MartianSummon: {
+		Tooltip: ""
+		DisplayName: Martian Summon
+	}
+
+	DeerclopsSummon: {
+		Tooltip: ""
+		DisplayName: Deerclops Summon
+	}
 }
