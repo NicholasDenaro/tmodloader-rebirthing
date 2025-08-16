@@ -208,8 +208,8 @@ namespace Rebirthing
 
     public static void Write(string message, byte r = 255, byte g = 255, byte b = 255)
     {
-      Main.NewText(message, r, g, b);
       Console.WriteLine(message);
+      Main.NewText(message, r, g, b);
 
       if (IsServer)
       {
@@ -450,5 +450,5 @@ namespace Rebirthing
     }
   }
 
-  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE, DIFFICULTY, GET_DIFFICULTY, SYNC_STATS, INCREMENT_WORLD }
+  public enum MessageType { CONNECT = 0, NPC_KILLED, MINING, MESSAGE, DIFFICULTY, GET_DIFFICULTY, SYNC_STATS, INCREMENT_WORLD, SPAWN_BOSS }
 }

@@ -45,6 +45,21 @@ NPCs: {
 			Princess_LovesNPC: I like {NPCName}.
 		}
 	}
+
+	BossMan: {
+		DisplayName: Boss Man
+
+		TownNPCMood: {
+			Content: I am content.
+			NoHome: I hate not having a home.
+			FarFromHome: I am too far from home.
+			LoveSpace: I love having so much space.
+			DislikeCrowded: I dislike how crowded I am.
+			HateCrowded: I hate how crowded I am.
+			LikeNPC_Princess: I like {NPCName}.
+			Princess_LovesNPC: I like {NPCName}.
+		}
+	}
 }
 
 Attributes: {
@@ -335,5 +350,27 @@ Configs: {
 			Label: Drop Count Rate (Unused)
 			Tooltip: ""
 		}
+	}
+}
+
+Items: {
+	SkeletronSummon: {
+		DisplayName: Skeletron Summon
+		Tooltip: ""
+	}
+
+	PlanteraSummon: {
+		DisplayName: Plantera Summon
+		Tooltip: ""
+	}
+
+	CultistSummon: {
+		Tooltip: ""
+		DisplayName: Cultist Summon
+	}
+
+	WOFSummon: {
+		DisplayName: W O F Summon
+		Tooltip: ""
 	}
 }
