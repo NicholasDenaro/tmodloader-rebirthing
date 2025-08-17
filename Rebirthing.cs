@@ -27,7 +27,24 @@ namespace Rebirthing
 
     public int WorldIncrement;
 
-    public static RebirthPlayer Player;
+    public static RebirthPlayer Player {
+      get
+      {
+        
+        try
+        {
+          if (Main.myPlayer >= 0 && Main.myPlayer < Main.player.Length && Main.myPlayer != 255)
+          {
+            return Main.LocalPlayer.GetModPlayer<RebirthPlayer>();
+          }
+        }
+        catch
+        {
+        }
+        
+        return null;
+      }
+    }
 
     public List<RebirthPlayer> Players { get; } = new List<RebirthPlayer>();
 
@@ -239,10 +256,7 @@ namespace Rebirthing
       }
       else
       {
-        foreach (RebirthPlayer player in Players)
-        {
-          player.AwardExpForMining(x, y, exp);
-        }
+        Rebirthing.Player.AwardExpForMining(x, y, exp);
       }
     }
 
@@ -357,6 +371,11 @@ namespace Rebirthing
 
     public void GetDifficulty()
     {
+      if (Rebirthing.IsSinglePlayer)
+      {
+        return;
+      }
+
       ModPacket packet = GetPacket();
       packet.Write((byte)MessageType.GET_DIFFICULTY);
       packet.Send();

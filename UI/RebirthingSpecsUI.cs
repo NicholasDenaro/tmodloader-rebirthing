@@ -197,7 +197,7 @@ namespace Rebirthing
     public override void OnActivate()
     {
       this.UpdateAmounts();
-      this.SetDescription(RebirthAttribute.List[0]);
+      this.SetDescription(this.selectedSpec ?? RebirthAttribute.List[0]);
     }
 
     private void UpdateAmounts()
@@ -275,7 +275,7 @@ namespace Rebirthing
       this.descriptionList.Add(current);
 
       int totalSpent = 0;
-      for (int i = 1; i <= this.GetAttribute(text).Level; i++)
+      for (int i = 0; i < this.GetAttribute(text).Level; i++)
       {
         totalSpent += this.GetAttributeCost(text, i);
       }

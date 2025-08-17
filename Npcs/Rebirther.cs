@@ -58,7 +58,7 @@ namespace Rebirthing.Npcs
     {
       if (firstButton)
       {
-        int requiredLevel = 25 + Rebirthing.Player.RebirthData.TotalLevel / 10;
+        int requiredLevel = 25 + (Rebirthing.Player.RebirthData.TotalLevel - Rebirthing.Player.RebirthData.Level) / 10;
         if (Rebirthing.Player.RebirthData.Level >= requiredLevel)
         {
           Rebirthing.Player.Rebirth();

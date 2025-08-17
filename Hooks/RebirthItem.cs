@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ObjectData;
 
 namespace Rebirthing
 {
@@ -22,9 +23,14 @@ namespace Rebirthing
 
     public override void OnSpawn(Item item, IEntitySource source)
     {
-      if (source is EntitySource_TileBreak)
+      if (Rebirthing.IsServer)
       {
-        EntitySource_TileBreak tbs = (EntitySource_TileBreak)source;
+        // Skip since the client will call this and handle exp gains
+        return;
+      }
+      
+      if (source is EntitySource_TileBreak tbs)
+      {
         if (item != null)
         {
           int exp = (int)(item.value * 1.5 / 5 / 100); // buy price. sell price is 1/5, Award exp per silver
@@ -32,14 +38,9 @@ namespace Rebirthing
           int x = tbs.TileCoords.X;
           int y = tbs.TileCoords.Y;
 
-          Tile tile = Main.tile[x, y];
+          var tl = RebirthTile.GetTLForBreakXY(x, y);
 
-          if (TileID.Trees == tile.TileType)
-          {
-            exp = Math.Max(1, exp);
-          }
-
-          Rebirthing.Instance.AwardExpForMining(x, y, exp);
+          Rebirthing.Instance.AwardExpForMining(tl.X, tl.Y, exp);
         }
       }
     }

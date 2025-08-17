@@ -42,19 +42,10 @@ namespace Rebirthing
 
     public List<int> levelUpsTimers = new List<int>();
 
-    class BrokenTile
-    {
-      public int X { get; set; }
-      public int Y { get; set; }
+    private Item lastHeldItem;
+    private int lastHeldItemStartingReach;
 
-      public BrokenTile(int x, int y)
-      {
-        this.X = x;
-        this.Y = y;
-      }
-    }
-
-    private List<BrokenTile> brokenTiles = new List<BrokenTile>();
+    private List<Point16> brokenTiles = new List<Point16>();
 
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
     {
@@ -110,13 +101,17 @@ namespace Rebirthing
         }
       }
 
-      foreach (HitTile.HitTileObject data in this.Player.hitTile?.data)
-      {
-        if (data.type != 0 && data.damage > 0)
-        {
-          brokenTiles.Add(new BrokenTile(data.X, data.Y));
-        }
-      }
+      // foreach (HitTile.HitTileObject data in this.Player.hitTile?.data)
+      // {
+      //   if (data.type != 0 && data.damage > 0)
+      //   {
+      //     if (Rebirthing.IsClient)
+      //     {
+      //       Rebirthing.Write("type: " + data.type + " | damage > 0? " + (data.damage > 0));
+      //     }
+      //     brokenTiles.Add(new BrokenTile(data.X, data.Y));
+      //   }
+      // }
 
       RebirthTick();
       TranscendTick();
@@ -139,6 +134,17 @@ namespace Rebirthing
 
         this.levelUpsTimer--;
       }
+    }
+
+    public void AddHitToTile(int x, int y)
+    {
+      if (Rebirthing.IsServer)
+      {
+        // The client handles their own block breaking
+        return;
+      }
+
+      brokenTiles.Add(new Point16(x, y));
     }
 
     private void RebirthTick()
@@ -338,7 +344,6 @@ namespace Rebirthing
     {
       Console.WriteLine("Enter World Loading player " + this.Player?.name);
       Rebirthing.Instance.Players.Add(this);
-      Rebirthing.Player = this;
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
@@ -354,7 +359,6 @@ namespace Rebirthing
     {
       this.Player.moveSpeed = this.Player.moveSpeed * (1 + this.GetAttributeValue("Speed")) * (1 + this.GetTAttributeValue("Speed"));
 
-      // this.Player.GetAttackSpeed(DamageClass.Generic) = this.Player.GetAttackSpeed(DamageClass.Generic) * (1 + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
       this.Player.GetAttackSpeed(DamageClass.Generic) = (this.Player.GetAttackSpeed(DamageClass.Generic) + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
 
       this.Player.statDefense = (this.Player.statDefense + (int)this.GetAttributeValue("Defense")) * (1 + this.GetTAttributeValue("Defense"));
@@ -375,9 +379,39 @@ namespace Rebirthing
       this.Player.pickSpeed = (this.Player.pickSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
       this.Player.tileSpeed = (this.Player.tileSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
 
-      this.Player.blockRange = (int)((this.Player.blockRange + this.GetAttributeValue("Reach")) * (1 + this.GetTAttributeValue("Reach")));
+      this.UpdateHeldItemReach();
 
       this.Player.wingTimeMax = (int)((this.Player.wingTimeMax + this.GetAttributeValue("Flight")) * (1 + this.GetTAttributeValue("Flight")));
+    }
+
+    private void UpdateHeldItemReach()
+    {
+      if (this.lastHeldItem != this.Player.HeldItem)
+      {
+        int startingBoost = this.Player.HeldItem.tileBoost;
+        if (this.Player.HeldItem != null)
+        {
+          this.Player.HeldItem.tileBoost = (int)((this.Player.HeldItem.tileBoost + this.GetAttributeValue("Reach")) * (1 + this.GetTAttributeValue("Reach")));
+        }
+
+        if (this.lastHeldItem != null)
+        {
+          this.lastHeldItem.tileBoost = lastHeldItemStartingReach;
+        }
+
+        this.lastHeldItem = this.Player.HeldItem;
+        this.lastHeldItemStartingReach = startingBoost;
+      }
+    }
+
+    private void ResetHeldItemReach()
+    {
+      if (this.lastHeldItem == this.Player.HeldItem)
+      {
+        this.Player.HeldItem.tileBoost = this.lastHeldItemStartingReach;
+        this.lastHeldItem = null;
+        this.lastHeldItemStartingReach = 0;
+      }
     }
 
     public override void ModifyMaxStats(out StatModifier health, out StatModifier mana)
@@ -447,7 +481,9 @@ namespace Rebirthing
     {
       if (Rebirthing.IsSinglePlayer || Rebirthing.IsClient)
       {
-        if (this.brokenTiles.Any(tile => tile.X == x && tile.Y == y))
+        int count = this.brokenTiles.RemoveAll(tile => tile.X == x && tile.Y == y);
+        RebirthTile.RemoveForBreakXY(x, y);
+        if (count > 0)
         {
           this.AwardExp(exp);
         }
@@ -469,8 +505,8 @@ namespace Rebirthing
 
     public void Transcend()
     {
-      this.rebirthTimer = 5 * 60;
-      this.rebirthing = true;
+      this.transcendTimer = 5 * 60;
+      this.transcending = true;
       Main.blockInput = true;
 
       this.SyncWithServer();
@@ -491,6 +527,7 @@ namespace Rebirthing
       if (this.transcending)
       {
         this.RebirthData.Transend();
+        this.ResetHeldItemReach();
       }
       this.transcending = false;
       Main.blockInput = false;
@@ -545,6 +582,11 @@ namespace Rebirthing
         this.RebirthData.RebirthAttributes[attr.Id].Level = attr.Level;
       }
 
+      if (attr.Id == "Reach")
+      {
+        this.ResetHeldItemReach();
+      }
+
       this.SyncWithServer();
     }
 
@@ -585,6 +627,11 @@ namespace Rebirthing
         this.RebirthData.TranscendenceAttributes[attr.Id].Level = attr.Level;
       }
 
+      if (attr.Id == "Reach")
+      {
+        this.ResetHeldItemReach();
+      }
+
       this.SyncWithServer();
     }
 
@@ -609,7 +656,6 @@ namespace Rebirthing
       int level = lvl ?? this.GetAttribute(name).Level;
       float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Cost"));
       float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Rebirth.Scale"));
-      // (int)Math.Pow(1.15, level) the original scaling.
       return (int)(baseCost * Math.Pow(scaleRate, level));
     }
 
@@ -618,7 +664,6 @@ namespace Rebirthing
       int level = lvl ?? this.GetTAttribute(name).Level;
       float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Cost"));
       float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Scale"));
-      // (int)Math.Pow(1.15, level) the original scaling.
       return (int)(baseCost * Math.Pow(scaleRate, level));
     }
   }

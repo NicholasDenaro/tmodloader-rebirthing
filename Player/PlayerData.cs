@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Terraria;
-using Terraria.ModLoader.Config;
 
 namespace Rebirthing
 {
@@ -85,6 +83,7 @@ namespace Rebirthing
       this.TranscendencePoints += levels / 5;
       Rebirthing.Write("Gained " + (levels / 5) + " transcendence energy");
       this.Level = 1;
+      this.Exp = 0;
       this.RebirthPoints = (int)(this.TotalLevel * Rebirthing.SpecsRate);
       this.RebirthAttributes.Clear();
     }
