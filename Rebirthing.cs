@@ -126,30 +126,35 @@ namespace Rebirthing
           {
             this.Players.Add(player);
           }
-          int attributesCount = reader.ReadInt32();
-          for (int i = 0; i < attributesCount; i++)
+          int loadoutCount = reader.ReadInt32();
+          for (int l = 0; l < loadoutCount; l++)
           {
-            string name = reader.ReadString();
-            int level = reader.ReadInt32();
-            RebirthAttribute attr = new RebirthAttribute()
+            int attributesCount = reader.ReadInt32();
+            for (int i = 0; i < attributesCount; i++)
             {
-              Id = name,
-              Level = level
-            };
-            player.SetAttribute(attr);
-          }
-          int attributesTCount = reader.ReadInt32();
-          for (int i = 0; i < attributesTCount; i++)
-          {
-            string name = reader.ReadString();
-            int level = reader.ReadInt32();
-            RebirthAttribute attr = new RebirthAttribute()
+              string name = reader.ReadString();
+              int level = reader.ReadInt32();
+              RebirthAttribute attr = new RebirthAttribute()
+              {
+                Id = name,
+                Level = level
+              };
+              player.SetAttribute(attr, l);
+            }
+            int attributesTCount = reader.ReadInt32();
+            for (int i = 0; i < attributesTCount; i++)
             {
-              Id = name,
-              Level = level
-            };
-            player.SetTAttribute(attr);
+              string name = reader.ReadString();
+              int level = reader.ReadInt32();
+              RebirthAttribute attr = new RebirthAttribute()
+              {
+                Id = name,
+                Level = level
+              };
+              player.SetTAttribute(attr, l);
+            }
           }
+          
           break;
         case MessageType.INCREMENT_WORLD:
           this.IncrementWorld(false);
@@ -179,29 +184,33 @@ namespace Rebirthing
           {
             this.Players.Add(player);
           }
-          int attributesCount = reader.ReadInt32();
-          for (int i = 0; i < attributesCount; i++)
+          int loadoutCount = reader.ReadInt32();
+          for (int l = 0; l < loadoutCount; l++)
           {
-            string name = reader.ReadString();
-            int level = reader.ReadInt32();
-            RebirthAttribute attr = new RebirthAttribute()
+            int attributesCount = reader.ReadInt32();
+            for (int i = 0; i < attributesCount; i++)
             {
-              Id = name,
-              Level = level
-            };
-            player.SetAttribute(attr);
-          }
-          int attributesTCount = reader.ReadInt32();
-          for (int i = 0; i < attributesTCount; i++)
-          {
-            string name = reader.ReadString();
-            int level = reader.ReadInt32();
-            RebirthAttribute attr = new RebirthAttribute()
+              string name = reader.ReadString();
+              int level = reader.ReadInt32();
+              RebirthAttribute attr = new RebirthAttribute()
+              {
+                Id = name,
+                Level = level
+              };
+              player.SetAttribute(attr, l);
+            }
+            int attributesTCount = reader.ReadInt32();
+            for (int i = 0; i < attributesTCount; i++)
             {
-              Id = name,
-              Level = level
-            };
-            player.SetTAttribute(attr);
+              string name = reader.ReadString();
+              int level = reader.ReadInt32();
+              RebirthAttribute attr = new RebirthAttribute()
+              {
+                Id = name,
+                Level = level
+              };
+              player.SetTAttribute(attr, l);
+            }
           }
           player.SyncWithServer();
           break;

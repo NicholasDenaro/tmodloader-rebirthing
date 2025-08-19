@@ -3,13 +3,30 @@ using System.Collections.Generic;
 
 namespace Rebirthing
 {
+  public class LoadoutData
+  {
+    public Dictionary<string, RebirthAttribute> RebirthAttributes { get; set; } = new Dictionary<string, RebirthAttribute>();
+
+    public Dictionary<string, RebirthAttribute> TranscendenceAttributes { get; set; } = new Dictionary<string, RebirthAttribute>();
+
+    public int RebirthPoints { get; set; } = 0;
+
+    public int TranscendencePoints { get; set; } = 0;
+  }
+
   public class PlayerData
   {
     public int Rebirths { get; set; } = 0;
 
+    // TODO: Get rid of these 
     public Dictionary<string, RebirthAttribute> RebirthAttributes { get; set; } = new Dictionary<string, RebirthAttribute>();
 
     public Dictionary<string, RebirthAttribute> TranscendenceAttributes { get; set; } = new Dictionary<string, RebirthAttribute>();
+
+    public int RebirthPoints { get; set; } = 0;
+
+    public int TranscendencePoints { get; set; } = 0;
+    // TODO: end get rid of these
 
     public int TotalLevel { get; set; } = 1;
 
@@ -19,9 +36,30 @@ namespace Rebirthing
 
     public int Exp { get; set; } = 0;
 
-    public int RebirthPoints { get; set; } = 0;
+    public List<LoadoutData> Loadouts { get; set; } = new List<LoadoutData>();
 
-    public int TranscendencePoints { get; set; } = 0;
+    public LoadoutData ActiveLoadout
+    {
+      get
+      {
+        if (Loadouts.Count == 0)
+        {
+          return null;
+        }
+
+        int index = Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0;
+        while (index >= Loadouts.Count)
+        {
+          Loadouts.Add(new LoadoutData()
+          {
+            RebirthPoints = Level,
+            TranscendencePoints = TranscendenceLevel / 5
+          });
+        }
+
+        return Loadouts[Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0];
+      }
+    } 
 
     public static int ExpPerLevel(int level)
     {
@@ -61,17 +99,30 @@ namespace Rebirthing
     {
       this.Rebirths++;
       int points = (int)(this.Level * Rebirthing.SpecsRate);
-      this.RebirthPoints += points;
+      this.AddRebirthPoints(points);
       Rebirthing.Write("Gained " + points + " rebirth energy");
       this.Level = 1;
       this.Exp = 0;
     }
 
-    public void Respec()
+    private void AddRebirthPoints(int points)
     {
-      this.RebirthPoints = (int)((this.TotalLevel - this.Level) * Rebirthing.SpecsRate);
-      Rebirthing.Write("Reclaimed " + this.RebirthPoints + " rebirth energy");
-      this.RebirthAttributes.Clear();
+      this.Loadouts.ForEach(loadout => loadout.RebirthPoints += points);
+    }
+
+    private void SetRebirthPoints(int points)
+    {
+      this.Loadouts.ForEach(loadout => loadout.RebirthPoints = points);
+    }
+
+    public void Respec(int loadoutIndex)
+    {
+      // this.RebirthPoints = (int)((this.TotalLevel - this.Level) * Rebirthing.SpecsRate);
+      this.Loadouts[loadoutIndex].RebirthPoints = (int)((this.TotalLevel - this.Level) * Rebirthing.SpecsRate);
+      // Rebirthing.Write("Reclaimed " + this.RebirthPoints + " rebirth energy");
+      Rebirthing.Write("Reclaimed " + this.Loadouts[loadoutIndex].RebirthPoints + " rebirth energy");
+      // this.RebirthAttributes.Clear();
+      this.Loadouts[loadoutIndex].RebirthAttributes.Clear();
     }
 
     public void Transend()
@@ -80,19 +131,34 @@ namespace Rebirthing
       Rebirthing.Write("Sacrificed " + levels + " levels");
       this.TotalLevel -= levels;
       this.TranscendenceLevel += levels;
-      this.TranscendencePoints += levels / 5;
+      // this.TranscendencePoints += levels / 5;
+      this.AddTranscendencePoints(levels / 5);
       Rebirthing.Write("Gained " + (levels / 5) + " transcendence energy");
       this.Level = 1;
       this.Exp = 0;
-      this.RebirthPoints = (int)(this.TotalLevel * Rebirthing.SpecsRate);
-      this.RebirthAttributes.Clear();
+      // this.RebirthPoints = (int)(this.TotalLevel * Rebirthing.SpecsRate);
+      this.SetRebirthPoints((int)(this.TotalLevel * Rebirthing.SpecsRate));
+      // this.RebirthAttributes.Clear();
+      this.Loadouts.ForEach(loadout => loadout.RebirthAttributes.Clear());
     }
 
-    public void RespecTranscendance()
+    private void AddTranscendencePoints(int points)
     {
-      this.TranscendencePoints = this.TranscendenceLevel / 5;
-      Rebirthing.Write("Reclaimed " + this.TranscendencePoints + " transcendence energy");
-      this.TranscendenceAttributes.Clear();
+      this.Loadouts.ForEach(loadout => loadout.TranscendencePoints += points);
+    }
+    private void SetTranscendencePoints(int points)
+    {
+      this.Loadouts.ForEach(loadout => loadout.TranscendencePoints = points);
+    }
+
+    public void RespecTranscendance(int loadoutIndex)
+    {
+      // this.TranscendencePoints = this.TranscendenceLevel / 5;
+      this.Loadouts[loadoutIndex].TranscendencePoints = this.TranscendenceLevel / 5;
+      // Rebirthing.Write("Reclaimed " + this.TranscendencePoints + " transcendence energy");
+      Rebirthing.Write("Reclaimed " + this.Loadouts[loadoutIndex].TranscendencePoints + " transcendence energy");
+      // this.TranscendenceAttributes.Clear();
+      this.Loadouts[loadoutIndex].TranscendenceAttributes.Clear();
     }
   }
 }

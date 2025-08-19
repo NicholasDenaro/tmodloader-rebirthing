@@ -23,6 +23,7 @@ namespace Rebirthing
       "Defense",
       "Mana",
       "Mana Regen",
+      "Mana Reduction",
       "Speed",
       "Flight",
       "Damage",
@@ -34,6 +35,7 @@ namespace Rebirthing
       "Block Break Speed",
       "Buff Duration",
       "Reach",
+      "Fishing",
     };
   }
 }
