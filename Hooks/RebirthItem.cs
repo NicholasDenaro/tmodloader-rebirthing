@@ -23,16 +23,18 @@ namespace Rebirthing
 
     public override void OnSpawn(Item item, IEntitySource source)
     {
-      if (Rebirthing.IsServer)
+      if (!Rebirthing.IsSinglePlayer && Rebirthing.IsClient)
       {
-        // Skip since the client will call this and handle exp gains
+        // Let the server handle it
         return;
       }
       
       if (source is EntitySource_TileBreak tbs)
       {
+        // Rebirthing.Write($"Item OnSpawn");
         if (item != null)
         {
+          // Rebirthing.Write(item.ToString());
           int exp = (int)(item.value * 1.5 / 5 / 100); // buy price. sell price is 1/5, Award exp per silver
 
           int x = tbs.TileCoords.X;
@@ -40,7 +42,12 @@ namespace Rebirthing
 
           var tl = RebirthTile.GetTLForBreakXY(x, y);
 
-          Rebirthing.Instance.AwardExpForMining(tl.X, tl.Y, exp);
+          // Rebirthing.Write($"Item OnSpawn {tl.X}, {tl.Y}");
+
+          if (tl != Point16.NegativeOne)
+          {
+            Rebirthing.Instance.AwardExpForMining(tl.X, tl.Y, exp);
+          }
         }
       }
     }

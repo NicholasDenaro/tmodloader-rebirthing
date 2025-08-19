@@ -89,9 +89,9 @@ Attributes: {
 
 		Transcendence: {
 			Description: Base health regen (+1%)
-			Value: "0.01"
+			Value: "0.025"
 			Scale: "1.2"
-			Cost: "5"
+			Cost: "2"
 		}
 	}
 

@@ -40,7 +40,7 @@ namespace Rebirthing.Npcs
 
     public override string GetChat()
     {
-      return "Rebirth to enhance your strength.";
+      return $"Rebirth at level {GetRequiredLevelToRebirth()} to enhance your strength.";
     }
 
     public override bool CanTownNPCSpawn(int numTownNPCs)
@@ -58,7 +58,7 @@ namespace Rebirthing.Npcs
     {
       if (firstButton)
       {
-        int requiredLevel = 25 + (Rebirthing.Player.RebirthData.TotalLevel - Rebirthing.Player.RebirthData.Level) / 10;
+        int requiredLevel = GetRequiredLevelToRebirth();
         if (Rebirthing.Player.RebirthData.Level >= requiredLevel)
         {
           Rebirthing.Player.Rebirth();
@@ -71,7 +71,7 @@ namespace Rebirthing.Npcs
         }
         else
         {
-          Main.npcChatText = "Talk to me again when you are at least level " + requiredLevel;
+          Main.npcChatText = $"Talk to me again when you are at least level {requiredLevel}.";
         }
 
       }
@@ -86,6 +86,11 @@ namespace Rebirthing.Npcs
         Main.playerInventory = true;
         ModContent.GetInstance<RebirthingSpecsSystem>().Show("Rebirth");
       }
+    }
+
+    private int GetRequiredLevelToRebirth()
+    {
+      return 25 + (Rebirthing.Player.RebirthData.TotalLevel - Rebirthing.Player.RebirthData.Level) / 10;
     }
   }
 }
