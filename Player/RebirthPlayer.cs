@@ -397,9 +397,7 @@ namespace Rebirthing
 
       this.Player.wingTimeMax = (int)((this.Player.wingTimeMax + this.GetAttributeValue("Flight")) * (1 + this.GetTAttributeValue("Flight")));
 
-      Main.NewText("fishing before: " + this.Player.fishingSkill);
-      this.Player.fishingSkill = (int)(this.Player.fishingSkill + this.GetAttributeValue("Fishing")  + this.GetTAttributeValue("Fishing"));
-      Main.NewText("fishing after:  " + this.Player.fishingSkill);
+      this.Player.fishingSkill = (int)(this.Player.fishingSkill + this.GetAttributeValue("Fishing") + this.GetTAttributeValue("Fishing"));
     }
 
     private void UpdateHeldItemReach()
