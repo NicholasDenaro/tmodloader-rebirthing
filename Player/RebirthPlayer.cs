@@ -367,6 +367,8 @@ namespace Rebirthing
 
       this.Player.manaRegen = (int)((this.Player.manaRegen + this.GetAttributeValue("Mana Regen")) * (1 + this.GetTAttributeValue("Mana Regen")));
 
+      this.Player.manaCost = Math.Max(0, (this.Player.manaCost - this.GetAttributeValue("Mana Reduction")) * (1 - this.GetTAttributeValue("Mana Reduction")));
+
       this.Player.GetArmorPenetration(DamageClass.Generic) = (this.Player.GetArmorPenetration(DamageClass.Generic) + this.GetAttributeValue("Armor Pen")) * (1 + this.GetTAttributeValue("Armor Pen"));
 
       this.Player.GetCritChance(DamageClass.Generic) = (this.Player.GetCritChance(DamageClass.Generic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
@@ -374,7 +376,7 @@ namespace Rebirthing
       this.Player.GetDamage(DamageClass.Generic).Base += this.GetAttributeValue("Damage");
       this.Player.GetDamage(DamageClass.Generic) += this.GetTAttributeValue("Damage");
 
-      this.Player.maxMinions = (int)(this.Player.maxMinions + this.GetAttributeValue("Max Minions") * (1 + this.GetTAttributeValue("Max Minions")));
+      this.Player.maxMinions = (int)((this.Player.maxMinions + this.GetAttributeValue("Max Minions")) * (1 + this.GetTAttributeValue("Max Minions")));
 
       this.Player.pickSpeed = (this.Player.pickSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
       this.Player.tileSpeed = (this.Player.tileSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
@@ -436,6 +438,27 @@ namespace Rebirthing
     public override void LoadData(TagCompound tag)
     {
       this.RebirthData = JsonSerializer.Deserialize<PlayerData>(tag.Get<string>("rebirthing")) ?? new PlayerData();
+
+      this.RebirthData.Loadouts = new List<LoadoutData>();
+      // if (this.RebirthData.Loadouts.Count == 0)
+      {
+        for (int i = 0; i < this.Player.Loadouts.Length; i++)
+        {
+          LoadoutData data = new LoadoutData();
+          data.RebirthPoints = this.RebirthData.RebirthPoints;
+          foreach (var kvp in this.RebirthData.RebirthAttributes)
+          {
+            data.RebirthAttributes.Add(kvp.Key, kvp.Value.Clone());
+          }
+          data.TranscendencePoints = this.RebirthData.TranscendencePoints;
+          foreach (var kvp in this.RebirthData.TranscendenceAttributes)
+          {
+            data.TranscendenceAttributes.Add(kvp.Key, kvp.Value.Clone());
+          }
+
+          this.RebirthData.Loadouts.Add(data);
+        }
+      }
       Console.WriteLine("LOG: Loaded player data");
     }
 
@@ -449,18 +472,23 @@ namespace Rebirthing
       ModPacket packet = Rebirthing.Instance.GetPacket();
       packet.Write((byte)MessageType.SYNC_STATS);
       packet.Write(this.Player.whoAmI);
-      packet.Write(this.RebirthData.RebirthAttributes.Count);
-      foreach (var kvp in this.RebirthData.RebirthAttributes)
+      packet.Write(this.RebirthData.Loadouts.Count);
+      for (int i = 0; i < this.RebirthData.Loadouts.Count; i++)
       {
-        packet.Write(kvp.Value.Id);
-        packet.Write(kvp.Value.Level);
+        packet.Write(this.RebirthData.Loadouts[i].RebirthAttributes.Count);
+        foreach (var kvp in this.RebirthData.Loadouts[i].RebirthAttributes)
+        {
+          packet.Write(kvp.Value.Id);
+          packet.Write(kvp.Value.Level);
+        }
+        packet.Write(this.RebirthData.Loadouts[i].TranscendenceAttributes.Count);
+        foreach (var kvp in this.RebirthData.Loadouts[i].TranscendenceAttributes)
+        {
+          packet.Write(kvp.Value.Id);
+          packet.Write(kvp.Value.Level);
+        }
       }
-      packet.Write(this.RebirthData.TranscendenceAttributes.Count);
-      foreach (var kvp in this.RebirthData.TranscendenceAttributes)
-      {
-        packet.Write(kvp.Value.Id);
-        packet.Write(kvp.Value.Level);
-      }
+      
 
       if (Rebirthing.IsClient && Main.myPlayer == this.Player.whoAmI)
       {
@@ -535,13 +563,13 @@ namespace Rebirthing
 
     public void Respec()
     {
-      this.RebirthData.Respec();
+      this.RebirthData.Respec(this.Player.CurrentLoadoutIndex);
       this.SyncWithServer();
     }
 
     public void RespecTranscendance()
     {
-      this.RebirthData.RespecTranscendance();
+      this.RebirthData.RespecTranscendance(this.Player.CurrentLoadoutIndex);
       this.SyncWithServer();
     }
 
@@ -552,9 +580,9 @@ namespace Rebirthing
         this.RebirthData = new PlayerData();
       }
       
-      if (this.RebirthData.RebirthAttributes.ContainsKey(name))
+      if (this.RebirthData.ActiveLoadout.RebirthAttributes.ContainsKey(name))
       {
-        return this.RebirthData.RebirthAttributes[name];
+        return this.RebirthData.ActiveLoadout.RebirthAttributes[name];
       }
       else
       {
@@ -566,20 +594,20 @@ namespace Rebirthing
       }
     }
 
-    public void SetAttribute(RebirthAttribute attr)
+    public void SetAttribute(RebirthAttribute attr, int loadoutIndex)
     {
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
       }
 
-      if (!this.RebirthData.RebirthAttributes.ContainsKey(attr.Id))
+      if (!this.RebirthData.Loadouts[loadoutIndex].RebirthAttributes.ContainsKey(attr.Id))
       {
-        this.RebirthData.RebirthAttributes[attr.Id] = attr;
+        this.RebirthData.Loadouts[loadoutIndex].RebirthAttributes[attr.Id] = attr;
       }
       else
       {
-        this.RebirthData.RebirthAttributes[attr.Id].Level = attr.Level;
+        this.RebirthData.Loadouts[loadoutIndex].RebirthAttributes[attr.Id].Level = attr.Level;
       }
 
       if (attr.Id == "Reach")
@@ -597,9 +625,9 @@ namespace Rebirthing
         this.RebirthData = new PlayerData();
       }
 
-      if (this.RebirthData.TranscendenceAttributes.ContainsKey(name))
+      if (this.RebirthData.ActiveLoadout.TranscendenceAttributes.ContainsKey(name))
       {
-        return this.RebirthData.TranscendenceAttributes[name];
+        return this.RebirthData.ActiveLoadout.TranscendenceAttributes[name];
       }
       else
       {
@@ -611,20 +639,20 @@ namespace Rebirthing
       }
     }
 
-    public void SetTAttribute(RebirthAttribute attr)
+    public void SetTAttribute(RebirthAttribute attr, int loadoutIndex)
     {
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
       }
 
-      if (!this.RebirthData.TranscendenceAttributes.ContainsKey(attr.Id))
+      if (!this.RebirthData.Loadouts[loadoutIndex].TranscendenceAttributes.ContainsKey(attr.Id))
       {
-        this.RebirthData.TranscendenceAttributes[attr.Id] = attr;
+        this.RebirthData.Loadouts[loadoutIndex].TranscendenceAttributes[attr.Id] = attr;
       }
       else
       {
-        this.RebirthData.TranscendenceAttributes[attr.Id].Level = attr.Level;
+        this.RebirthData.Loadouts[loadoutIndex].TranscendenceAttributes[attr.Id].Level = attr.Level;
       }
 
       if (attr.Id == "Reach")

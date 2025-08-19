@@ -207,12 +207,12 @@ namespace Rebirthing
         if (this.SpecType == "Rebirth")
         {
           this.totalLevelText.SetText("Total Level: " + Rebirthing.Player.RebirthData.TotalLevel);
-          this.attributesText.SetText("Rebirth energy: " + Rebirthing.Player.RebirthData.RebirthPoints);
+          this.attributesText.SetText("Rebirth energy: " + Rebirthing.Player.RebirthData.ActiveLoadout.RebirthPoints);
         }
         else if (this.SpecType == "Transcendence")
         {
           this.totalLevelText.SetText("Transendence Level: " + Rebirthing.Player.RebirthData.TranscendenceLevel);
-          this.attributesText.SetText("Transcendence energy: " + Rebirthing.Player.RebirthData.TranscendencePoints);
+          this.attributesText.SetText("Transcendence energy: " + Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints);
         }
       }
     }
@@ -394,11 +394,11 @@ namespace Rebirthing
     {
       if (this.SpecType == "Rebirth")
       {
-        return Rebirthing.Player.RebirthData.RebirthPoints;
+        return Rebirthing.Player.RebirthData.ActiveLoadout.RebirthPoints;
       }
       else if (this.SpecType == "Transcendence")
       {
-        return Rebirthing.Player.RebirthData.TranscendencePoints;
+        return Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints;
       }
 
       return 0;
@@ -408,15 +408,15 @@ namespace Rebirthing
     {
       if (this.SpecType == "Rebirth")
       {
-        Rebirthing.Player.RebirthData.RebirthPoints -= cost;
+        Rebirthing.Player.RebirthData.ActiveLoadout.RebirthPoints -= cost;
         attr.Level++;
-        Rebirthing.Player.SetAttribute(attr);
+        Rebirthing.Player.SetAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
       }
       else if (this.SpecType == "Transcendence")
       {
-        Rebirthing.Player.RebirthData.TranscendencePoints -= cost;
+        Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints -= cost;
         attr.Level++;
-        Rebirthing.Player.SetTAttribute(attr);
+        Rebirthing.Player.SetTAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
       }
 
       return 0;
@@ -426,15 +426,15 @@ namespace Rebirthing
     {
       if (this.SpecType == "Rebirth")
       {
-        Rebirthing.Player.RebirthData.RebirthPoints += recover;
+        Rebirthing.Player.RebirthData.ActiveLoadout.RebirthPoints += recover;
         attr.Level--;
-        Rebirthing.Player.SetAttribute(attr);
+        Rebirthing.Player.SetAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
       }
       else if (this.SpecType == "Transcendence")
       {
-        Rebirthing.Player.RebirthData.TranscendencePoints += recover;
+        Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints += recover;
         attr.Level--;
-        Rebirthing.Player.SetTAttribute(attr);
+        Rebirthing.Player.SetTAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
       }
 
       return 0;

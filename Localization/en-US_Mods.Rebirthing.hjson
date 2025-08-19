@@ -138,8 +138,24 @@ Attributes: {
 		Transcendence: {
 			Description: Base mana regen (+1%)
 			Value: "0.01"
+			Scale: "1.15"
+			Cost: "2"
+		}
+	}
+
+	"Mana Reduction": {
+		Rebirth: {
+			Description: Base mana reduction (2%)
+			Value: "0.02"
 			Scale: "1.2"
 			Cost: "5"
+		}
+
+		Transcendence: {
+			Description: Mana reduction multiplier (1%)
+			Value: "0.05"
+			Scale: "1.2"
+			Cost: "10"
 		}
 	}
 

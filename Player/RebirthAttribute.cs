@@ -23,6 +23,7 @@ namespace Rebirthing
       "Defense",
       "Mana",
       "Mana Regen",
+      "Mana Reduction",
       "Speed",
       "Flight",
       "Damage",
