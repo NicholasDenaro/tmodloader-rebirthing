@@ -78,6 +78,14 @@ namespace Rebirthing
       this.AwardExp(fish.value / 25);
     }
 
+    public override void OnEquipmentLoadoutSwitched(int oldLoadoutIndex, int loadoutIndex)
+    {
+      if (Rebirthing.IsClient)
+      {
+        RebirthingSpecsPanel.Instance.ChangeLoadout();
+      }
+    }
+
     public override void PreUpdate()
     {
 
@@ -347,6 +355,10 @@ namespace Rebirthing
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
+        for (int i = 0; i < this.Player.Loadouts.Length; i++)
+        {
+          this.RebirthData.Loadouts.Add(new LoadoutData());
+        }
       }
       Main.blockInput = false;
 
@@ -384,6 +396,10 @@ namespace Rebirthing
       this.UpdateHeldItemReach();
 
       this.Player.wingTimeMax = (int)((this.Player.wingTimeMax + this.GetAttributeValue("Flight")) * (1 + this.GetTAttributeValue("Flight")));
+
+      Main.NewText("fishing before: " + this.Player.fishingSkill);
+      this.Player.fishingSkill = (int)(this.Player.fishingSkill + this.GetAttributeValue("Fishing")  + this.GetTAttributeValue("Fishing"));
+      Main.NewText("fishing after:  " + this.Player.fishingSkill);
     }
 
     private void UpdateHeldItemReach()
@@ -439,8 +455,7 @@ namespace Rebirthing
     {
       this.RebirthData = JsonSerializer.Deserialize<PlayerData>(tag.Get<string>("rebirthing")) ?? new PlayerData();
 
-      this.RebirthData.Loadouts = new List<LoadoutData>();
-      // if (this.RebirthData.Loadouts.Count == 0)
+      if (this.RebirthData.Loadouts.Count == 0)
       {
         for (int i = 0; i < this.Player.Loadouts.Length; i++)
         {
@@ -578,6 +593,10 @@ namespace Rebirthing
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
+        for (int i = 0; i < this.Player.Loadouts.Length; i++)
+        {
+          this.RebirthData.Loadouts.Add(new LoadoutData());
+        }
       }
       
       if (this.RebirthData.ActiveLoadout.RebirthAttributes.ContainsKey(name))
@@ -599,6 +618,10 @@ namespace Rebirthing
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
+        for (int i = 0; i < this.Player.Loadouts.Length; i++)
+        {
+          this.RebirthData.Loadouts.Add(new LoadoutData());
+        }
       }
 
       if (!this.RebirthData.Loadouts[loadoutIndex].RebirthAttributes.ContainsKey(attr.Id))
@@ -623,6 +646,10 @@ namespace Rebirthing
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
+        for (int i = 0; i < this.Player.Loadouts.Length; i++)
+        {
+          this.RebirthData.Loadouts.Add(new LoadoutData());
+        }
       }
 
       if (this.RebirthData.ActiveLoadout.TranscendenceAttributes.ContainsKey(name))
@@ -644,6 +671,10 @@ namespace Rebirthing
       if (this.RebirthData == null)
       {
         this.RebirthData = new PlayerData();
+        for (int i = 0; i < this.Player.Loadouts.Length; i++)
+        {
+          this.RebirthData.Loadouts.Add(new LoadoutData());
+        }
       }
 
       if (!this.RebirthData.Loadouts[loadoutIndex].TranscendenceAttributes.ContainsKey(attr.Id))

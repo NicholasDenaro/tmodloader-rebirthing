@@ -334,6 +334,22 @@ Attributes: {
 			Scale: "1.15"
 		}
 	}
+
+	Fishing: {
+		Rebirth: {
+			Description: Fishing Power (+2)
+			Value: "2"
+			Cost: "1"
+			Scale: "1.15"
+		}
+
+		Transcendence: {
+			Description: Fishing Power (+10)
+			Value: "10"
+			Cost: "1"
+			Scale: "1.15"
+		}
+	}
 }
 
 Configs: {

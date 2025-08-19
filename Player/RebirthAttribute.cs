@@ -35,6 +35,7 @@ namespace Rebirthing
       "Block Break Speed",
       "Buff Duration",
       "Reach",
+      "Fishing",
     };
   }
 }

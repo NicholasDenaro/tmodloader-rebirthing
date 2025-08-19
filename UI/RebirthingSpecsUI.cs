@@ -111,6 +111,8 @@ namespace Rebirthing
 
     private string SpecType = "Rebirth";
 
+    public static RebirthingSpecsPanel Instance;
+
     public void SetType(string type)
     {
       this.SpecType = type;
@@ -195,6 +197,14 @@ namespace Rebirthing
     }
 
     public override void OnActivate()
+    {
+      this.UpdateAmounts();
+      this.SetDescription(this.selectedSpec ?? RebirthAttribute.List[0]);
+
+      Instance = this;
+    }
+
+    public void ChangeLoadout()
     {
       this.UpdateAmounts();
       this.SetDescription(this.selectedSpec ?? RebirthAttribute.List[0]);

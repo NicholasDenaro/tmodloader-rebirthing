@@ -38,7 +38,28 @@ namespace Rebirthing
 
     public List<LoadoutData> Loadouts { get; set; } = new List<LoadoutData>();
 
-    public LoadoutData ActiveLoadout => Loadouts[Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0];
+    public LoadoutData ActiveLoadout
+    {
+      get
+      {
+        if (Loadouts.Count == 0)
+        {
+          return null;
+        }
+
+        int index = Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0;
+        while (index >= Loadouts.Count)
+        {
+          Loadouts.Add(new LoadoutData()
+          {
+            RebirthPoints = Level,
+            TranscendencePoints = TranscendenceLevel / 5
+          });
+        }
+
+        return Loadouts[Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0];
+      }
+    } 
 
     public static int ExpPerLevel(int level)
     {
