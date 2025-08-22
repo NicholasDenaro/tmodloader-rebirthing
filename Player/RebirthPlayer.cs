@@ -31,7 +31,6 @@ namespace Rebirthing
     private int rebirthTimer = -1;
     public int RebirthTimer => this.rebirthTimer;
 
-
     private bool transcending = false;
     public bool IsTranscending => this.transcending;
     private int transcendTimer = -1;

@@ -12,6 +12,7 @@ namespace Rebirthing.Items
       Item.ResearchUnlockCount = 1;
       ItemID.Sets.SortingPriorityBossSpawns[Type] = 12;
       NPCID.Sets.MPAllowedEnemies[NPCID.SkeletronHead] = true;
+      NPCID.Sets.MPAllowedEnemies[NPCID.SkeletronHand] = true;
     }
 
     public override void SetDefaults()

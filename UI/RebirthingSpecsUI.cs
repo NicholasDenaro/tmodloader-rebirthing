@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
@@ -93,7 +94,6 @@ namespace Rebirthing
 
   public class RebirthingSpecsPanel : UIPanel
   {
-    private string selectedText;
     // Stores the offset from the top left of the UIPanel while dragging
     private Vector2 offset;
     // A flag that checks if the panel is currently being dragged
@@ -104,6 +104,14 @@ namespace Rebirthing
     private UIList descriptionList;
 
     private UIText totalLevelText;
+
+    private UIText currentLoadoutText;
+
+    private UIItemIcon currentLoadoutLockedInactive;
+
+    private UIItemIcon currentLoadoutLockedActive;
+
+    private string hoverText = string.Empty;
 
     private UIText attributesText;
 
@@ -128,6 +136,46 @@ namespace Rebirthing
       totalLevelText = new UIText("Total Level: 0");
       totalLevelText.Left.Percent = 0.01f;
       this.Append(totalLevelText);
+
+      currentLoadoutText = new UIText("Total Level: 0");
+      currentLoadoutText.Left.Percent = 0.01f;
+      currentLoadoutText.Left.Pixels = 30;
+      currentLoadoutText.Top.Pixels = 30;
+      this.Append(currentLoadoutText);
+
+      currentLoadoutLockedInactive = new UIItemIcon(new Item(ItemID.Star), false);
+      currentLoadoutLockedInactive.Left.Percent = 0.01f;
+      currentLoadoutLockedInactive.Top.Pixels = 20;
+      currentLoadoutLockedInactive.OnLeftClick += (ev, ui) =>
+      {
+        Rebirthing.Player.RebirthData.LockedLoadout = Rebirthing.Player.Player.CurrentLoadoutIndex;
+        UpdateAmounts();
+      };
+      currentLoadoutLockedInactive.OnMouseOver += (ev, ui) =>
+      {
+        this.hoverText = "Click to enable always using these skills for your loadouts";
+      };
+      currentLoadoutLockedInactive.OnMouseOut += (ev, ui) =>
+      {
+        this.hoverText = string.Empty;
+      };
+
+      currentLoadoutLockedActive = new UIItemIcon(new Item(ItemID.FallenStar), false);
+      currentLoadoutLockedActive.Left.Percent = 0.01f;
+      currentLoadoutLockedActive.Top.Pixels = 20;
+      currentLoadoutLockedActive.OnLeftClick += (ev, ui) =>
+      {
+        Rebirthing.Player.RebirthData.LockedLoadout = -1;
+        UpdateAmounts();
+      };
+      currentLoadoutLockedActive.OnMouseOver += (ev, ui) =>
+      {
+        this.hoverText = "Click to let your skills loadouts match your current loadout";
+      };
+      currentLoadoutLockedActive.OnMouseOut += (ev, ui) =>
+      {
+        this.hoverText = string.Empty;
+      };
 
       attributesText = new UIText($"{SpecType} energy: 0");
       attributesText.Left.Percent = 0.42f;
@@ -210,10 +258,31 @@ namespace Rebirthing
       this.SetDescription(this.selectedSpec ?? RebirthAttribute.List[0]);
     }
 
+    public override void Draw(SpriteBatch spriteBatch)
+    {
+      base.Draw(spriteBatch);
+      if (this.hoverText.Length > 0)
+      {
+        Main.instance.MouseText(this.hoverText);
+      }
+    }
+
     private void UpdateAmounts()
     {
       if (Rebirthing.Player != null)
       {
+        this.currentLoadoutText.SetText("Loadout: " + (Rebirthing.Player.RebirthData.CurrentLoadoutIndex + 1));
+        if (Rebirthing.Player.RebirthData.LockedLoadout > -1)
+        {
+          this.Append(this.currentLoadoutLockedActive);
+          this.RemoveChild(this.currentLoadoutLockedInactive);
+        }
+        else
+        {
+          this.RemoveChild(this.currentLoadoutLockedActive);
+          this.Append(this.currentLoadoutLockedInactive);
+        }
+
         if (this.SpecType == "Rebirth")
         {
           this.totalLevelText.SetText("Total Level: " + Rebirthing.Player.RebirthData.TotalLevel);
@@ -224,6 +293,8 @@ namespace Rebirthing
           this.totalLevelText.SetText("Transendence Level: " + Rebirthing.Player.RebirthData.TranscendenceLevel);
           this.attributesText.SetText("Transcendence energy: " + Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints);
         }
+
+        this.SetDescription(this.selectedSpec);
       }
     }
 
@@ -244,14 +315,14 @@ namespace Rebirthing
         ScalePanel = true,
         AltPanelColor = UICommon.MainPanelBackground,
         AltHoverPanelColor = UICommon.MainPanelBackground * (1 / 0.8f),
-        UseAltColors = () => selectedText != text,
+        UseAltColors = () => this.selectedSpec != text,
       }.WithFadedMouseOver();
 
       button.OnLeftClick += (a, b) =>
       {
         SoundEngine.PlaySound(SoundID.MenuOpen);
         this.SetDescription(text);
-        this.selectedText = text;
+        this.selectedSpec = text;
       };
 
       return button;
@@ -420,13 +491,13 @@ namespace Rebirthing
       {
         Rebirthing.Player.RebirthData.ActiveLoadout.RebirthPoints -= cost;
         attr.Level++;
-        Rebirthing.Player.SetAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
+        Rebirthing.Player.SetAttribute(attr, Rebirthing.Player.RebirthData.CurrentLoadoutIndex);
       }
       else if (this.SpecType == "Transcendence")
       {
         Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints -= cost;
         attr.Level++;
-        Rebirthing.Player.SetTAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
+        Rebirthing.Player.SetTAttribute(attr, Rebirthing.Player.RebirthData.CurrentLoadoutIndex);
       }
 
       return 0;
@@ -438,13 +509,13 @@ namespace Rebirthing
       {
         Rebirthing.Player.RebirthData.ActiveLoadout.RebirthPoints += recover;
         attr.Level--;
-        Rebirthing.Player.SetAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
+        Rebirthing.Player.SetAttribute(attr, Rebirthing.Player.RebirthData.CurrentLoadoutIndex);
       }
       else if (this.SpecType == "Transcendence")
       {
         Rebirthing.Player.RebirthData.ActiveLoadout.TranscendencePoints += recover;
         attr.Level--;
-        Rebirthing.Player.SetTAttribute(attr, Rebirthing.Player.Player.CurrentLoadoutIndex);
+        Rebirthing.Player.SetTAttribute(attr, Rebirthing.Player.RebirthData.CurrentLoadoutIndex);
       }
 
       return 0;

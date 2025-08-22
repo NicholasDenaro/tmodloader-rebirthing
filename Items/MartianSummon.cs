@@ -29,8 +29,7 @@ namespace Rebirthing.Items
 
     public override bool? UseItem(Player player)
     {
-      Main.invasionType = InvasionID.MartianMadness;
-      Main.invasionProgress = 0;
+      Main.StartInvasion(InvasionID.MartianMadness);
       return true;
     }
 

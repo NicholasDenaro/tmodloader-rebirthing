@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Terraria;
 
 namespace Rebirthing
 {
@@ -38,6 +39,10 @@ namespace Rebirthing
 
     public List<LoadoutData> Loadouts { get; set; } = new List<LoadoutData>();
 
+    public int LockedLoadout { get; set; } = -1;
+
+    public int CurrentLoadoutIndex => LockedLoadout > -1 ? LockedLoadout : (Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0);
+
     public LoadoutData ActiveLoadout
     {
       get
@@ -57,7 +62,12 @@ namespace Rebirthing
           });
         }
 
-        return Loadouts[Rebirthing.Player?.Player?.CurrentLoadoutIndex ?? 0];
+        if (LockedLoadout >= 0)
+        {
+          index = LockedLoadout;
+        }
+
+        return Loadouts[index];
       }
     } 
 
