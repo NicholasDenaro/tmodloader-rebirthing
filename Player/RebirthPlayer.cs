@@ -64,12 +64,19 @@ namespace Rebirthing
         damage = damage + target.life;
       }
 
-      if (!damageToNpc.ContainsKey(target.whoAmI))
+      int targetWhoAmI = target.whoAmI;
+
+      if (target.realLife > -1)
       {
-        damageToNpc.Add(target.whoAmI, 0);
+        targetWhoAmI = target.realLife;
       }
 
-      damageToNpc[target.whoAmI] += damage;
+      if (!damageToNpc.ContainsKey(targetWhoAmI))
+      {
+        damageToNpc.Add(targetWhoAmI, 0);
+      }
+
+      damageToNpc[targetWhoAmI] += damage;
     }
 
     public override void ModifyCaughtFish(Item fish)
@@ -107,18 +114,6 @@ namespace Rebirthing
           this.damageToNpc.Remove(npcWhoAmI);
         }
       }
-
-      // foreach (HitTile.HitTileObject data in this.Player.hitTile?.data)
-      // {
-      //   if (data.type != 0 && data.damage > 0)
-      //   {
-      //     if (Rebirthing.IsClient)
-      //     {
-      //       Rebirthing.Write("type: " + data.type + " | damage > 0? " + (data.damage > 0));
-      //     }
-      //     brokenTiles.Add(new BrokenTile(data.X, data.Y));
-      //   }
-      // }
 
       RebirthTick();
       TranscendTick();
