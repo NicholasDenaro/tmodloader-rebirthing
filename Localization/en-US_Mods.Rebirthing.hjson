@@ -200,8 +200,8 @@ Attributes: {
 		}
 
 		Transcendence: {
-			Description: Base damage (+1%)
-			Value: "0.01"
+			Description: Base damage (+5%)
+			Value: "0.05"
 			Scale: "1.15"
 			Cost: "1"
 		}
@@ -264,8 +264,8 @@ Attributes: {
 		}
 
 		Transcendence: {
-			Description: Critical dmage (x +25%)
-			Value: "0.25"
+			Description: Critical dmage (x +10%)
+			Value: "0.10"
 			Cost: "1"
 			Scale: "1.1"
 		}
@@ -436,3 +436,5 @@ Items: {
 		DisplayName: Deerclops Summon
 	}
 }
+
+"Keybinds.Open Stats.DisplayName": Open  Stats

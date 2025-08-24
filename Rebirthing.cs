@@ -33,7 +33,7 @@ namespace Rebirthing
         
         try
         {
-          if (Main.myPlayer >= 0 && Main.myPlayer < Main.player.Length && Main.myPlayer != 255)
+          if (Main.myPlayer >= 0 && Main.myPlayer < Main.player.Length && Main.myPlayer != 255 && Main.LocalPlayer.ModPlayers.Length > 0)
           {
             return Main.LocalPlayer.GetModPlayer<RebirthPlayer>();
           }
@@ -388,6 +388,20 @@ namespace Rebirthing
       ModPacket packet = GetPacket();
       packet.Write((byte)MessageType.GET_DIFFICULTY);
       packet.Send();
+    }
+  }
+
+  public class RebirthingKeybindSystem : ModSystem
+  {
+    public static ModKeybind OpenStats { get; private set; }
+    public override void Load()
+    {
+      OpenStats = KeybindLoader.RegisterKeybind(Mod, "Open Stats", "K");
+    }
+
+    public override void Unload()
+    {
+      OpenStats = null;
     }
   }
 

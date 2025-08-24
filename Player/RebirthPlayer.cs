@@ -46,6 +46,8 @@ namespace Rebirthing
 
     private List<Point16> brokenTiles = new List<Point16>();
 
+    public Dictionary<string, float> BaseStats { get; } = new Dictionary<string, float>();
+
     public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
     {
       float critDamage = this.GetAttributeValue("Crit Damage");
@@ -89,6 +91,10 @@ namespace Rebirthing
       if (Rebirthing.IsClient)
       {
         RebirthingSpecsPanel.Instance.ChangeLoadout();
+        Main.QueueMainThreadAction(() =>
+        {
+          RebirthingStatsPanel.Instance.Refresh();
+        });
       }
     }
 
@@ -363,34 +369,48 @@ namespace Rebirthing
 
     public override void PostUpdateMiscEffects()
     {
+      this.BaseStats["Speed"] = this.Player.moveSpeed;
       this.Player.moveSpeed = this.Player.moveSpeed * (1 + this.GetAttributeValue("Speed")) * (1 + this.GetTAttributeValue("Speed"));
 
+      this.BaseStats["Attack Speed"] = this.Player.GetAttackSpeed(DamageClass.Generic);
       this.Player.GetAttackSpeed(DamageClass.Generic) = (this.Player.GetAttackSpeed(DamageClass.Generic) + this.GetAttributeValue("Attack Speed")) * (1 + this.GetTAttributeValue("Attack Speed"));
 
+      this.BaseStats["Defense"] = this.Player.statDefense;
       this.Player.statDefense = (this.Player.statDefense + (int)this.GetAttributeValue("Defense")) * (1 + this.GetTAttributeValue("Defense"));
 
+      this.BaseStats["Health Regen"] = this.Player.lifeRegen;
       this.Player.lifeRegen = (int)((this.Player.lifeRegen + this.GetAttributeValue("Health Regen")) * (1 + this.GetTAttributeValue("Health Regen")));
 
+      this.BaseStats["Mana Regen"] = this.Player.manaRegen;
       this.Player.manaRegen = (int)((this.Player.manaRegen + this.GetAttributeValue("Mana Regen")) * (1 + this.GetTAttributeValue("Mana Regen")));
 
+      this.BaseStats["Mana Reduction"] = this.Player.manaCost;
       this.Player.manaCost = Math.Max(0, (this.Player.manaCost - this.GetAttributeValue("Mana Reduction")) * (1 - this.GetTAttributeValue("Mana Reduction")));
 
+      this.BaseStats["Armor Pen"] = this.Player.GetArmorPenetration(DamageClass.Generic);
       this.Player.GetArmorPenetration(DamageClass.Generic) = (this.Player.GetArmorPenetration(DamageClass.Generic) + this.GetAttributeValue("Armor Pen")) * (1 + this.GetTAttributeValue("Armor Pen"));
 
+      this.BaseStats["Crit Rate"] = this.Player.GetCritChance(DamageClass.Generic);
       this.Player.GetCritChance(DamageClass.Generic) = (this.Player.GetCritChance(DamageClass.Generic) + this.GetAttributeValue("Crit Rate")) * (1 + this.GetTAttributeValue("Crit Rate"));
 
+      this.BaseStats["Damage"] = this.Player.GetDamage(DamageClass.Generic).Base;
       this.Player.GetDamage(DamageClass.Generic).Base += this.GetAttributeValue("Damage");
       this.Player.GetDamage(DamageClass.Generic) += this.GetTAttributeValue("Damage");
 
+      this.BaseStats["Max Minions"] = this.Player.maxMinions;
       this.Player.maxMinions = (int)((this.Player.maxMinions + this.GetAttributeValue("Max Minions")) * (1 + this.GetTAttributeValue("Max Minions")));
 
+      this.BaseStats["Block Break Speed"] = this.Player.pickSpeed;
       this.Player.pickSpeed = (this.Player.pickSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
       this.Player.tileSpeed = (this.Player.tileSpeed - this.GetAttributeValue("Block Break Speed")) * (1 - this.GetTAttributeValue("Block Break Speed"));
 
+      this.BaseStats["Reach"] = 0;
       this.UpdateHeldItemReach();
 
+      this.BaseStats["Flight"] = this.Player.wingTimeMax;
       this.Player.wingTimeMax = (int)((this.Player.wingTimeMax + this.GetAttributeValue("Flight")) * (1 + this.GetTAttributeValue("Flight")));
 
+      this.BaseStats["Fishing"] = this.Player.fishingSkill;
       this.Player.fishingSkill = (int)(this.Player.fishingSkill + this.GetAttributeValue("Fishing") + this.GetTAttributeValue("Fishing"));
     }
 
@@ -414,6 +434,16 @@ namespace Rebirthing
       }
     }
 
+    public int GetCurrentReach()
+    {
+      if (this.Player.HeldItem != null)
+      {
+        return this.Player.HeldItem.tileBoost;
+      }
+
+      return 0;
+    }
+
     private void ResetHeldItemReach()
     {
       if (this.lastHeldItem == this.Player.HeldItem)
@@ -430,8 +460,17 @@ namespace Rebirthing
       mana = StatModifier.Default;
       if (this.RebirthData != null)
       {
+        if (this.Player != null)
+        {
+          this.BaseStats["Health"] = this.Player.statLifeMax;
+        }
         health.Base = this.GetAttributeValue("Health");
         health *= 1 + this.GetTAttributeValue("Health");
+
+        if (this.Player != null)
+        {
+          this.BaseStats["Mana"] = this.Player.statManaMax;
+        }
         mana.Base = this.GetAttributeValue("Mana");
         mana *= 1 + this.GetTAttributeValue("Mana");
       }
@@ -495,7 +534,7 @@ namespace Rebirthing
           packet.Write(kvp.Value.Level);
         }
       }
-      
+
 
       if (Rebirthing.IsClient && Main.myPlayer == this.Player.whoAmI)
       {
@@ -590,7 +629,7 @@ namespace Rebirthing
           this.RebirthData.Loadouts.Add(new LoadoutData());
         }
       }
-      
+
       if (this.RebirthData.ActiveLoadout.RebirthAttributes.ContainsKey(name))
       {
         return this.RebirthData.ActiveLoadout.RebirthAttributes[name];
@@ -716,6 +755,27 @@ namespace Rebirthing
       float baseCost = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Cost"));
       float scaleRate = float.Parse(Language.GetTextValue($"Mods.Rebirthing.Attributes.{name}.Transcendence.Scale"));
       return (int)(baseCost * Math.Pow(scaleRate, level));
+    }
+
+    public override void ProcessTriggers(TriggersSet triggersSet)
+    {
+      if (RebirthingKeybindSystem.OpenStats.JustPressed)
+      {
+        RebirthingStatsModSystem rsms = ModContent.GetInstance<RebirthingStatsModSystem>();
+        if (rsms.IsOpen)
+        {
+          rsms.Hide();
+        }
+        else
+        {
+          rsms.Show();
+        }
+      }
+
+      if (triggersSet.Inventory && !Main.playerInventory)
+      {
+        ModContent.GetInstance<RebirthingStatsModSystem>().Hide();
+      }
     }
   }
 
